@@ -17,6 +17,8 @@ function App() {
   const [cycleNumber, setCycleNumber] = useState<number>(1); //первоначвльно на 1 цикле мы находимся
   const audio = useRef<HTMLAudioElement>(null); // пока что null ибо нет никакой ссылки
 
+  
+
   //useEffect - это хук React, который позволяет выполнять побочные эффекты в функциональных
   //компонентах. В данном случае, useEffect используется для запуска и остановки таймера
   //в зависимости от значений isWorking и timer.
@@ -29,7 +31,7 @@ function App() {
   //Если любое из этих значений изменится, функция эффекта будет выполнена снова.
 
   // useEffect(() => {
-  //   let interval: NodeJS.Timer; //Переменная interval объявляется в начале функции эффекта, чтобы она была доступна для очистки.
+  //   let interval: ; //Переменная interval объявляется в начале функции эффекта, чтобы она была доступна для очистки.
 
   //   if (timerIsWorking && timer > 0) {
   //     interval = setInterval(() => {
@@ -51,37 +53,39 @@ function App() {
 
   // }, [timer, timerIsWorking, inputRestTime, inputWorkTime]);
 
+  let trainingInterval;
+  let restInterval;
   ///ТРЕНИРОВКА
   useEffect(() => {
-    let interval: number //Переменная interval объявляется в начале функции эффекта, чтобы она была доступна для очистки.
+    let interval: NodeJS.Timeout //Переменная interval объявляется в начале функции эффекта, чтобы она была доступна для очистки.
 
     if (timerIsWorking && timer > 0) {
-      interval = window.setInterval(() => {
-        setRestTimer((prevTime) => prevTime - 1);
+      interval = setInterval(() => {
+        setTimer((prevTime) => prevTime - 1);
       }, 1000);
     }
-    else if (timerIsWorking && timer === 0 && cycleNumber <= (typeof inputCycles === 'number' ? inputCycles : 0)){
+    else if (timerIsWorking && timer === 0 && cycleNumber <= (inputCycles as number)){
       audio.current?.play(); //Проигрывается звуковой сигнал.
       setTimerIsWorking(false)
       setRestTimerIsWorking(true)
       setRestTimer(inputRestTime as number)
     }
 
-    return () => window.clearInterval(interval)
-  },
-  [timerIsWorking, timer, cycleNumber, inputCycles, inputRestTime])
+    return () => clearInterval(interval)
+
+  },[timerIsWorking, timer, cycleNumber, inputCycles, inputRestTime])
 
 
   ///ОТДЫХ
   useEffect(() => {
-    let interval: number;
+    let interval: NodeJS.Timeout;
 
     if (restTimerIsWorking && restTimer > 0) {
-      interval = window.setInterval(() => {
+      interval = setInterval(() => {
         setRestTimer((prevTime) => prevTime - 1)
       }, 1000);
     }
-    else if(restTimerIsWorking && restTimer === 0 && cycleNumber <= (typeof inputCycles === 'number' ? inputCycles : 0)){
+    else if(restTimerIsWorking && restTimer === 0 && cycleNumber <= (inputCycles as number)){
       audio.current?.play(); //Проигрывается звуковой сигнал.
       setRestTimerIsWorking(false)
       setTimerIsWorking(true)
@@ -89,27 +93,29 @@ function App() {
       setCycleNumber((prevCycle) => prevCycle + 1) 
     }
 
-    return () => window.clearInterval(interval)
+    return () => clearInterval(interval)
+
   }, [restTimerIsWorking, restTimer, cycleNumber, inputCycles, inputWorkTime ])
 
 
   const startTimer = () => {
-    setTimerIsWorking(true);
-    console.log('fvnjfkd')
+      setTimer((inputWorkTime as number));
+      setCycleNumber(1);
+      setTimerIsWorking(true);
   };
 
   const stopTimer = () => {
-    setTimerIsWorking(false);
-    // setTimer(inputWorkTime) //таймер сбрасывается до начального значения времени для тренировки(20cek)
-    // setCycleNumber(1) // таймер сбрасывается до первого цикла
-    console.log('fjnkjfndffsfffffff')
-  };
+  setTimerIsWorking(false);
+  setRestTimerIsWorking(false);
+};
+
 
   const resetTime = () => {
     setTimerIsWorking(false);
+    setRestTimerIsWorking(false);
     setTimer(inputWorkTime as number); //таймер сбрасывается до начального значения времени для тренировки(20cek)
+    setRestTimer(inputRestTime as number)
     setCycleNumber(1); // таймер сбрасывается до первого цикла
-    console.log('lizzzzz')
   };
 
   return (
@@ -137,7 +143,12 @@ function App() {
             type="number"
             id="restTime"
             value={inputRestTime}
-            onChange={(e) => setInputRestTime(e.target.value === "" ? "" : +e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              setInputRestTime(value === "" ? "" : +value);
+              setRestTimer(value === "" ? 0 : +value);
+              setRestTimerIsWorking(false);
+            }}
           />
         </label>
 
@@ -163,12 +174,16 @@ function App() {
         </button>
       </div>
       <div id="timer" className="timer">
-        {timerIsWorking ? 
-        `${Math.floor(timer / 60).toString()
-          .padStart(2, "0")} : ${(timer % 60).toString().padStart(2, "0")}`
-        : `${Math.floor(restTimer / 60).toString()
-          .padStart(2, "0")} : ${(timer % 60).toString().padStart(2, "0")}`}
-      </div>
+  {timerIsWorking
+    ? `${Math.floor(timer / 60)
+        .toString()
+        .padStart(2, "0")} : ${(timer % 60).toString().padStart(2, "0")}`
+    : restTimerIsWorking
+    ? `${Math.floor(restTimer / 60)
+        .toString()
+        .padStart(2, "0")} : ${(restTimer % 60).toString().padStart(2, "0")}`
+    : `табата таймер`}
+</div>
       {/**
        * Оператор / для минут
        * Оператор / используется для деления числа на другое число.
