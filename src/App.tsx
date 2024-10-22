@@ -10,13 +10,15 @@ function App() {
 
   const [timer, setTimer] = useState<number>(inputWorkTime as number); //время таймера=время тренировки
   const [timerIsWorking, setTimerIsWorking] = useState<boolean>(false); //false так как таймер изначально не включен
- 
-  const [restTimer, setRestTimer] = useState<number>(inputRestTime as number)
-  const [restTimerIsWorking, setRestTimerIsWorking] = useState<boolean>(false)
+
+  const [restTimer, setRestTimer] = useState<number>(inputRestTime as number);
+  const [restTimerIsWorking, setRestTimerIsWorking] = useState<boolean>(false);
+
+  const [timerIsStoped, setTimerIsStoped] = useState<boolean>(false);
+  
 
   const [cycleNumber, setCycleNumber] = useState<number>(1); //первоначвльно на 1 цикле мы находимся
   const audio = useRef<HTMLAudioElement>(null); // пока что null ибо нет никакой ссылки
-
   
 
   //useEffect - это хук React, который позволяет выполнять побочные эффекты в функциональных
@@ -27,54 +29,29 @@ function App() {
   //Функция эффекта: Это функция, которая будет выполнена после каждого рендера компонента,
   //если зависимости (второй параметр) изменились.
 
-  //Массив зависимостей: Это массив значений, которые useEffect будет отслеживать.
-  //Если любое из этих значений изменится, функция эффекта будет выполнена снова.
-
-  // useEffect(() => {
-  //   let interval: ; //Переменная interval объявляется в начале функции эффекта, чтобы она была доступна для очистки.
-
-  //   if (timerIsWorking && timer > 0) {
-  //     interval = setInterval(() => {
-  //       setTimer((prevTime) => prevTime - 1);
-  //     }, 1000);
-  //   }
-  //   //Если timerIsWorking равно true и timer больше 0, создается интервал, который каждую секунду уменьшает значение timer на 1.
-  //   else if (timerIsWorking && timer === 0) {
-  //     audio.current?.play(); //Проигрывается звуковой сигнал.
-  //     setTimerIsWorking(false); //TimerIsWorking устанавливается в false, что означает переход к отдыху.
-  //     setTimer(inputRestTime as number); //таймер тренировки переключен на таймер отдыха(10сек)
-  //     setCycleNumber((prevCycle) => prevCycle + 1);
-  //   } else if (timer === 0 && !timerIsWorking) {
-  //     audio.current?.play(); //Проигрывается звуковой сигнал.
-  //     setTimerIsWorking(true); //TimerIsWorking устанавливается в true, что означает переход к тренировке.
-  //     setTimer(inputWorkTime as number);
-  //   }
-  //   return () => clearInterval(interval);
-
-  // }, [timer, timerIsWorking, inputRestTime, inputWorkTime]);
-
-  let trainingInterval;
-  let restInterval;
+  
   ///ТРЕНИРОВКА
   useEffect(() => {
-    let interval: NodeJS.Timeout //Переменная interval объявляется в начале функции эффекта, чтобы она была доступна для очистки.
+    let interval: NodeJS.Timeout; //Переменная interval объявляется в начале функции эффекта, чтобы она была доступна для очистки.
 
     if (timerIsWorking && timer > 0) {
       interval = setInterval(() => {
         setTimer((prevTime) => prevTime - 1);
       }, 1000);
-    }
-    else if (timerIsWorking && timer === 0 && cycleNumber <= (inputCycles as number)){
+      setRestTimer(inputRestTime as number);
+    } else if (
+      timerIsWorking &&
+      timer === 0 &&
+      cycleNumber <= (inputCycles as number)
+    ) {
       audio.current?.play(); //Проигрывается звуковой сигнал.
-      setTimerIsWorking(false)
-      setRestTimerIsWorking(true)
-      setRestTimer(inputRestTime as number)
+      setTimerIsWorking(false);
+      setRestTimerIsWorking(true);
+      setRestTimer(inputRestTime as number);
     }
 
-    return () => clearInterval(interval)
-
-  },[timerIsWorking, timer, cycleNumber, inputCycles, inputRestTime])
-
+    return () => clearInterval(interval);
+  }, [timerIsWorking, timer, cycleNumber, inputCycles, inputRestTime]);
 
   ///ОТДЫХ
   useEffect(() => {
@@ -82,39 +59,48 @@ function App() {
 
     if (restTimerIsWorking && restTimer > 0) {
       interval = setInterval(() => {
-        setRestTimer((prevTime) => prevTime - 1)
+        setRestTimer((prevTime) => prevTime - 1);
       }, 1000);
-    }
-    else if(restTimerIsWorking && restTimer === 0 && cycleNumber <= (inputCycles as number)){
-      audio.current?.play(); //Проигрывается звуковой сигнал.
-      setRestTimerIsWorking(false)
-      setTimerIsWorking(true)
       setTimer(inputWorkTime as number);
-      setCycleNumber((prevCycle) => prevCycle + 1) 
+    } else if (
+      restTimerIsWorking &&
+      restTimer === 0 &&
+      cycleNumber < (inputCycles as number)
+    ) {
+      audio.current?.play(); //Проигрывается звуковой сигнал.
+      setRestTimerIsWorking(false);
+      setTimerIsWorking(true);
+      setTimer(inputWorkTime as number);
+      setCycleNumber((prevCycle) => prevCycle + 1);
     }
 
-    return () => clearInterval(interval)
-
-  }, [restTimerIsWorking, restTimer, cycleNumber, inputCycles, inputWorkTime ])
-
+    return () => clearInterval(interval);
+  }, [restTimerIsWorking, restTimer, cycleNumber, inputCycles, inputWorkTime]);
 
   const startTimer = () => {
-      setTimer((inputWorkTime as number));
-      setCycleNumber(1);
-      setTimerIsWorking(true);
+    setTimer(inputWorkTime as number);
+    setCycleNumber(1);
+    setTimerIsWorking(true);
+    setRestTimer(inputRestTime as number);
   };
 
   const stopTimer = () => {
-  setTimerIsWorking(false);
-  setRestTimerIsWorking(false);
-};
+    setTimerIsWorking(false);
+    setRestTimerIsWorking(false);
+    setTimerIsStoped(true);
+  };
 
+  const continueTimer = () => {
+    setTimerIsStoped(false);
+    setTimerIsWorking(true);
+    // setRestTimerIsWorking(true) НЕТ Я НЕ МОГУ ЭТО ВПИСАТЬ ПОТОМУ ЧТО ВСЕ ПОЛЕТИТ
+  };
 
   const resetTime = () => {
     setTimerIsWorking(false);
     setRestTimerIsWorking(false);
     setTimer(inputWorkTime as number); //таймер сбрасывается до начального значения времени для тренировки(20cek)
-    setRestTimer(inputRestTime as number)
+    setRestTimer(inputRestTime as number);
     setCycleNumber(1); // таймер сбрасывается до первого цикла
   };
 
@@ -129,11 +115,11 @@ function App() {
             id="workTime"
             value={inputWorkTime}
             onChange={(e) => {
-              const value = e.target.value
-              setInputWorkTime( value === "" ? "" : +value)
-              setTimer(value === "" ? 0 : +value)
-              setTimerIsWorking(false)}
-            }
+              const value = e.target.value;
+              setInputWorkTime(value === "" ? "" : +value);
+              setTimer(value === "" ? 0 : +value);
+              setTimerIsWorking(false);
+            }}
           />
         </label>
 
@@ -158,7 +144,9 @@ function App() {
             type="number"
             id="cycles"
             value={inputCycles}
-            onChange={(e) => setInputCycles(e.target.value === "" ? "" : +e.target.value)}
+            onChange={(e) =>
+              setInputCycles(e.target.value === "" ? "" : +e.target.value)
+            }
           />
         </label>
       </div>
@@ -167,23 +155,46 @@ function App() {
           Старт
         </button>
         <button type="button" id="stop" onClick={stopTimer}>
-          Стоп
+          Пауза
         </button>
+        {timerIsStoped ? (
+          <button type="button" id="continue" onClick={continueTimer}>
+          Далее
+        </button>
+        ) : null}
         <button type="button" id="reset" onClick={resetTime}>
           Сброс
         </button>
       </div>
       <div id="timer" className="timer">
-  {timerIsWorking
-    ? `${Math.floor(timer / 60)
-        .toString()
-        .padStart(2, "0")} : ${(timer % 60).toString().padStart(2, "0")}`
-    : restTimerIsWorking
-    ? `${Math.floor(restTimer / 60)
-        .toString()
-        .padStart(2, "0")} : ${(restTimer % 60).toString().padStart(2, "0")}`
-    : `табата таймер`}
-</div>
+        {timerIsWorking
+          ? `${Math.floor(timer / 60)
+              .toString()
+              .padStart(2, "0")} : ${(timer % 60).toString().padStart(2, "0")}`
+          : `${Math.floor(timer / 60)
+              .toString()
+              .padStart(2, "0")} : ${(timer % 60)
+              .toString()
+              .padStart(2, "0")} work`}
+      </div>
+
+      <div id="rest-timer" className="rest-timer">
+        {restTimerIsWorking
+          ? `${Math.floor(restTimer / 60)
+              .toString()
+              .padStart(2, "0")} : ${(restTimer % 60)
+              .toString()
+              .padStart(2, "0")}`
+          : `${Math.floor(restTimer / 60)
+              .toString()
+              .padStart(2, "0")} : ${(restTimer % 60)
+              .toString()
+              .padStart(2, "0")} rest`}
+      </div>
+
+      <div id="cycles" className="cycles">
+        {cycleNumber} / {inputCycles} подходов
+      </div>
       {/**
        * Оператор / для минут
        * Оператор / используется для деления числа на другое число.

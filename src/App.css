@@ -13,6 +13,7 @@ body {
 
 label{
   font-size: 20px;
+  line-height: 31px;
 }
 
 input[type="number"]{
@@ -32,7 +33,25 @@ button{
   font-size: 18px;
 }
 
-.timer{
+.timer,
+.rest-timer{
   margin-top: 10px;
   font-size: 40px;
+}
+
+.timer{
+  color:chocolate;
+}
+
+.rest-timer{
+  color: chartreuse;
+}
+
+button[type = 'button']{
+cursor: pointer;
+}
+
+.cycles{
+  margin-top: 10px;
+  font-size: 30px;
 }
