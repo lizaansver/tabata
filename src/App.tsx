@@ -10,11 +10,12 @@ function App() {
 
   const [timer, setTimer] = useState<number>(inputWorkTime as number); //время таймера=время тренировки
   const [timerIsWorking, setTimerIsWorking] = useState<boolean>(false); //false так как таймер изначально не включен
+const [timerIsStoped, setTimerIsStoped] = useState<boolean>(false);
 
   const [restTimer, setRestTimer] = useState<number>(inputRestTime as number);
   const [restTimerIsWorking, setRestTimerIsWorking] = useState<boolean>(false);
-
-  const [timerIsStoped, setTimerIsStoped] = useState<boolean>(false);
+  const [restTimerIsStoped, setRestTimerIsStoped] = useState<boolean>(false);
+  
   
 
   const [cycleNumber, setCycleNumber] = useState<number>(1); //первоначвльно на 1 цикле мы находимся
@@ -84,24 +85,57 @@ function App() {
     setRestTimer(inputRestTime as number);
   };
 
+  // const stopTimer = () => {
+  //   setTimerIsWorking(false);
+  //   setRestTimerIsWorking(false);
+  //   setTimerIsStoped(true);
+  // };
+
   const stopTimer = () => {
-    setTimerIsWorking(false);
-    setRestTimerIsWorking(false);
-    setTimerIsStoped(true);
+    if (timerIsWorking) {
+      setTimerIsWorking(false);
+      setTimerIsStoped(true);
+    } else if (restTimerIsWorking) {
+      setRestTimerIsWorking(false);
+      setRestTimerIsStoped(true);
+    }
   };
 
-  const continueTimer = () => {
+//   const continueTimer = () => {
+//   if (timerIsWorking) {
+//     setTimerIsStoped(false);
+//     setTimerIsWorking(true);
+//   } else if (restTimerIsWorking) {
+//     setTimerIsStoped(false);
+//     setRestTimerIsWorking(true);
+//   }
+// };
+
+const continueTimer = () => {
+  if (timerIsStoped) {
     setTimerIsStoped(false);
     setTimerIsWorking(true);
-    // setRestTimerIsWorking(true) НЕТ Я НЕ МОГУ ЭТО ВПИСАТЬ ПОТОМУ ЧТО ВСЕ ПОЛЕТИТ
-  };
+  } else if (restTimerIsStoped) {
+    setRestTimerIsStoped(false);
+    setRestTimerIsWorking(true);
+  }
+};
+
+  // const resetTime = () => {
+  //   setTimerIsWorking(false);
+  //   setRestTimerIsWorking(false);
+  //   setTimer(inputWorkTime as number); //таймер сбрасывается до начального значения времени для тренировки(20cek)
+  //   setRestTimer(inputRestTime as number);
+  //   setCycleNumber(1); // таймер сбрасывается до первого цикла
+  // };
+  
 
   const resetTime = () => {
     setTimerIsWorking(false);
     setRestTimerIsWorking(false);
-    setTimer(inputWorkTime as number); //таймер сбрасывается до начального значения времени для тренировки(20cek)
+    setTimer(inputWorkTime as number);
     setRestTimer(inputRestTime as number);
-    setCycleNumber(1); // таймер сбрасывается до первого цикла
+    setCycleNumber(1);
   };
 
   return (
@@ -154,14 +188,18 @@ function App() {
         <button type="button" id="start" onClick={startTimer}>
           Старт
         </button>
-        <button type="button" id="stop" onClick={stopTimer}>
+        {/* <button type="button" id="stop" onClick={stopTimer}>
           Пауза
         </button>
         {timerIsStoped ? (
           <button type="button" id="continue" onClick={continueTimer}>
           Далее
         </button>
-        ) : null}
+        ) : null} */}
+        <button type="button" id="pauseContinue" onClick={timerIsStoped || restTimerIsStoped ? continueTimer : stopTimer}>
+          {timerIsStoped || restTimerIsStoped ? "Продолжить" : "Пауза"}
+        </button>
+        
         <button type="button" id="reset" onClick={resetTime}>
           Сброс
         </button>
