@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./App.css";
-// import { NodeJS } from "node";
-// import { setInterval } from "timers";
+
+import ReactAudioPlayer from "react-audio-player";
 
 function App() {
   const [inputWorkTime, setInputWorkTime] = useState<number | string>(20);
@@ -10,16 +10,14 @@ function App() {
 
   const [timer, setTimer] = useState<number>(inputWorkTime as number); //время таймера=время тренировки
   const [timerIsWorking, setTimerIsWorking] = useState<boolean>(false); //false так как таймер изначально не включен
-const [timerIsStoped, setTimerIsStoped] = useState<boolean>(false);
+  const [timerIsStoped, setTimerIsStoped] = useState<boolean>(false);
 
   const [restTimer, setRestTimer] = useState<number>(inputRestTime as number);
   const [restTimerIsWorking, setRestTimerIsWorking] = useState<boolean>(false);
   const [restTimerIsStoped, setRestTimerIsStoped] = useState<boolean>(false);
-  
-  
 
   const [cycleNumber, setCycleNumber] = useState<number>(1); //первоначвльно на 1 цикле мы находимся
-  const audio = useRef<HTMLAudioElement>(null); // пока что null ибо нет никакой ссылки
+  const [isSoundIsPlaying, setIsSoundIsPlaying] = useState<boolean>(false)
   
 
   //useEffect - это хук React, который позволяет выполнять побочные эффекты в функциональных
@@ -30,7 +28,6 @@ const [timerIsStoped, setTimerIsStoped] = useState<boolean>(false);
   //Функция эффекта: Это функция, которая будет выполнена после каждого рендера компонента,
   //если зависимости (второй параметр) изменились.
 
-  
   ///ТРЕНИРОВКА
   useEffect(() => {
     let interval: NodeJS.Timeout; //Переменная interval объявляется в начале функции эффекта, чтобы она была доступна для очистки.
@@ -44,8 +41,8 @@ const [timerIsStoped, setTimerIsStoped] = useState<boolean>(false);
       timerIsWorking &&
       timer === 0 &&
       cycleNumber <= (inputCycles as number)
-    ) {
-      audio.current?.play(); //Проигрывается звуковой сигнал.
+    ) {   
+      setIsSoundIsPlaying(true) // gudok
       setTimerIsWorking(false);
       setRestTimerIsWorking(true);
       setRestTimer(inputRestTime as number);
@@ -68,7 +65,7 @@ const [timerIsStoped, setTimerIsStoped] = useState<boolean>(false);
       restTimer === 0 &&
       cycleNumber < (inputCycles as number)
     ) {
-      audio.current?.play(); //Проигрывается звуковой сигнал.
+      setIsSoundIsPlaying(true) // gudok
       setRestTimerIsWorking(false);
       setTimerIsWorking(true);
       setTimer(inputWorkTime as number);
@@ -79,17 +76,12 @@ const [timerIsStoped, setTimerIsStoped] = useState<boolean>(false);
   }, [restTimerIsWorking, restTimer, cycleNumber, inputCycles, inputWorkTime]);
 
   const startTimer = () => {
+    setIsSoundIsPlaying(true) // gudok
     setTimer(inputWorkTime as number);
     setCycleNumber(1);
     setTimerIsWorking(true);
     setRestTimer(inputRestTime as number);
   };
-
-  // const stopTimer = () => {
-  //   setTimerIsWorking(false);
-  //   setRestTimerIsWorking(false);
-  //   setTimerIsStoped(true);
-  // };
 
   const stopTimer = () => {
     if (timerIsWorking) {
@@ -101,46 +93,30 @@ const [timerIsStoped, setTimerIsStoped] = useState<boolean>(false);
     }
   };
 
-//   const continueTimer = () => {
-//   if (timerIsWorking) {
-//     setTimerIsStoped(false);
-//     setTimerIsWorking(true);
-//   } else if (restTimerIsWorking) {
-//     setTimerIsStoped(false);
-//     setRestTimerIsWorking(true);
-//   }
-// };
-
-const continueTimer = () => {
-  if (timerIsStoped) {
-    setTimerIsStoped(false);
-    setTimerIsWorking(true);
-  } else if (restTimerIsStoped) {
-    setRestTimerIsStoped(false);
-    setRestTimerIsWorking(true);
-  }
-};
-
-  // const resetTime = () => {
-  //   setTimerIsWorking(false);
-  //   setRestTimerIsWorking(false);
-  //   setTimer(inputWorkTime as number); //таймер сбрасывается до начального значения времени для тренировки(20cek)
-  //   setRestTimer(inputRestTime as number);
-  //   setCycleNumber(1); // таймер сбрасывается до первого цикла
-  // };
-  
+  const continueTimer = () => {
+    if (timerIsStoped) {
+      setTimerIsStoped(false);
+      setTimerIsWorking(true);
+    } else if (restTimerIsStoped) {
+      setRestTimerIsStoped(false);
+      setRestTimerIsWorking(true);
+    }
+  };
 
   const resetTime = () => {
     setTimerIsWorking(false);
     setRestTimerIsWorking(false);
-    setTimer(inputWorkTime as number);
+    setTimer(inputWorkTime as number); //таймер сбрасывается до начального значения времени для тренировки(20cek)
     setRestTimer(inputRestTime as number);
-    setCycleNumber(1);
+    setCycleNumber(1); // таймер сбрасывается до первого цикла
+
+    setTimerIsStoped(false);
+    setRestTimerIsStoped(false);
   };
 
   return (
     <>
-      <h1>Tabata Timer</h1>
+      <h1>TABATA TIMER</h1>
       <div className="content">
         <label>
           Тренировка (секунды) :
@@ -188,18 +164,16 @@ const continueTimer = () => {
         <button type="button" id="start" onClick={startTimer}>
           Старт
         </button>
-        {/* <button type="button" id="stop" onClick={stopTimer}>
-          Пауза
+        <button
+          type="button"
+          id="pauseContinue"
+          onClick={
+            timerIsStoped || restTimerIsStoped ? continueTimer : stopTimer
+          }
+        >
+          {timerIsStoped || restTimerIsStoped ? "Далее" : "Пауза"}
         </button>
-        {timerIsStoped ? (
-          <button type="button" id="continue" onClick={continueTimer}>
-          Далее
-        </button>
-        ) : null} */}
-        <button type="button" id="pauseContinue" onClick={timerIsStoped || restTimerIsStoped ? continueTimer : stopTimer}>
-          {timerIsStoped || restTimerIsStoped ? "Продолжить" : "Пауза"}
-        </button>
-        
+
         <button type="button" id="reset" onClick={resetTime}>
           Сброс
         </button>
@@ -213,7 +187,7 @@ const continueTimer = () => {
               .toString()
               .padStart(2, "0")} : ${(timer % 60)
               .toString()
-              .padStart(2, "0")} work`}
+              .padStart(2, "0")} треня`}
       </div>
 
       <div id="rest-timer" className="rest-timer">
@@ -227,25 +201,14 @@ const continueTimer = () => {
               .toString()
               .padStart(2, "0")} : ${(restTimer % 60)
               .toString()
-              .padStart(2, "0")} rest`}
+              .padStart(2, "0")} отдых`}
       </div>
 
       <div id="cycles" className="cycles">
         {cycleNumber} / {inputCycles} подходов
       </div>
-      {/**
-       * Оператор / для минут
-       * Оператор / используется для деления числа на другое число.
-       * В данном случае, timer / 60 делит общее количество секунд (timer) на 60,
-       * чтобы получить количество полных минут.
-       *
-       * Оператор % для секунд
-       * Оператор % используется для вычисления остатка (ОЧЕНЬ ВАЖНО) от деления одного числа на другое.
-       * В данном случае, timer % 60 вычисляет остаток от деления общего количества секунд (timer)
-       * на 60, чтобы получить количество секунд, которые остаются после вычисления полных минут.
-       */}
 
-      <audio id="beep" src="beep.mp3"></audio>
+   {isSoundIsPlaying ? <ReactAudioPlayer src="/svistok.mp3" autoPlay onEnded={() => setIsSoundIsPlaying(false)}  /> : null}
     </>
   );
 }

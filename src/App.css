@@ -1,57 +1,83 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: "Montserrat", sans-serif;
   text-align: center;
+  background-color: #bd69ff;
 }
 
-.content{
+h1{
+  font-size: 50px;
+  margin: 30px 0px 20px;
+}
+
+.content {
   display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    align-content: center
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  align-content: center;
 }
 
-label{
+label {
+  font-size: 24px;
+  line-height: 40px;
+}
+
+input[type="number"] {
+  padding: 5px 0px 5px 10px;
+  width: 40px;
   font-size: 20px;
-  line-height: 31px;
+  margin-left: 5px;
+  border-radius: 10px;
+  border: 1px solid black;
 }
 
-input[type="number"]{
-  padding: 5px;
-    width: 40px;
-    font-size: 16px;
-}
-
-.buttons{
+.buttons {
   display: flex;
-    justify-content: center;
-    gap: 30px;
-    margin-top: 10px;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 10px;
 }
 button{
-  padding: 10px;
-  font-size: 18px;
+  font-size: 23px;
+  cursor: pointer;
+  border: 1px solid black;
+  height: 100px;
+  width: 100px;
+  border-radius: 50%;
+  transition: background-color .1s linear;
 }
 
+button:hover{
+  background-color: rgb(211, 182, 238);
+}
+
+button:active{
+  background-color: #c6ff8e;
+}
+
+
 .timer,
-.rest-timer{
+.rest-timer {
   margin-top: 10px;
   font-size: 40px;
 }
 
-.timer{
-  color:chocolate;
+.timer {
+  color: chocolate;
 }
 
-.rest-timer{
+.rest-timer {
   color: chartreuse;
 }
 
-button[type = 'button']{
-cursor: pointer;
-}
 
-.cycles{
+
+.cycles {
   margin-top: 10px;
   font-size: 30px;
+}
+
+audio:not([controls]) {
+  opacity: 0;
+  pointer-events: none;
 }
