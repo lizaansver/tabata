@@ -138,3 +138,7 @@ audio:not([controls]) {
     opacity: 1;
   }
 }
+
+.selected-program{
+  padding: 5px;
+}

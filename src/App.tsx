@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./App.css";
 import ReactAudioPlayer from "react-audio-player";
-import { ref, push } from "firebase/database";
+import { ref, push, onValue } from "firebase/database";
 import { database } from "./index";
+import { PrimaryExpression } from "typescript";
 
 function App() {
   const [inputWorkTime, setInputWorkTime] = useState<number | string>(20);
@@ -11,7 +12,10 @@ function App() {
   const [inputTrainingName, setInputTrainingName] = useState<string>(
     "Название тренировки"
   );
-  const [message, setMessage] = useState<string | null>("")
+  const [message, setMessage] = useState<string | null>("");
+
+  const [programs, setPrograms] = useState<Record<string, Program>>({}); // Добавляем состояние programs
+  const [selectedProgram, setSelectedProgram] = useState(""); // Добавляем состояние selectedProgram чобы выбирать программу
 
   const [timer, setTimer] = useState<number>(inputWorkTime as number); //время таймера=время тренировки
   const [timerIsWorking, setTimerIsWorking] = useState<boolean>(false); //false так как таймер изначально не включен
@@ -134,31 +138,39 @@ function App() {
     setRestTimerIsStoped(false);
   };
 
+
+  ///сохраняем программу в firebase
   const saveProgram = () => {
     const program = {
-      nameProgram:inputTrainingName, 
+      nameProgram: inputTrainingName,
       workTime: inputWorkTime,
       rest: inputRestTime,
       cycles: inputCycles,
     };
 
-    const programsRef = ref(database, "programs");
-    push(programsRef, program)
+    const sendProgramToFirebase = ref(database, "programs");
+    push(sendProgramToFirebase, program) //push метод firebase
       .then(() => {
         console.log("программа сохранена");
-        setMessage("Программа сохранена")
+        setMessage("Программа сохранена");
         setTimeout(() => {
-          setMessage(null)
-        }, 3000)
+          setMessage(null);
+        }, 3000);
       })
       .catch((error) => {
         console.error("не получилось", error);
       });
   };
 
+  type Program = {
+    nameProgram: string;
+    workTime: number;
+    rest: number;
+    cycles: number;
+  };
 
   /**
-   * В строке const programsRef = ref(database, 'programs'); мы создаем ссылку на узел programs
+   * В строке const sendProgramToFirebase = ref(database, 'programs'); мы создаем ссылку на узел programs
    * в базе данных Firebase Realtime Database. Узел programs будет содержать все программы,
    * которые мы сохраняем в базу данных.
    *
@@ -172,10 +184,64 @@ function App() {
    * Узлы используются для структурирования данных в иерархическую древовидную структуру.
    */
 
+
+  ///получаем программы из firebase
+  useEffect(() => {
+    const sendProgramToFirebase = ref(database, "programs");
+    const unsubscribe = onValue(sendProgramToFirebase, (snapshot) => {
+      const programs = snapshot.val();
+      setPrograms(programs); // Обновляем состояние компонента с полученными программами
+    });
+
+    return () => unsubscribe(); // Отменяем подписку на изменения в узле при размонтировании компонента
+  }, []);
+
+  //Когда вы подписываетесь на изменения в узле программ в базе данных с помощью метода onValue,
+  //вы получаете объект snapshot, который содержит текущее значение данных в узле программ.!!
+
+  //Чтобы получить данные из объекта snapshot, вы можете использовать метод val(),
+  //который возвращает значение данных в виде обычного JavaScript-объекта.
+  // В вашем случае, snapshot.val() вернет объект, содержащий все программы,
+  //которые были сохранены в базе данных.
+
+  //Затем вы можете обработать полученные программы и обновить состояние
+  //вашего приложения в соответствии с этими данными.
+  //Например, вы можете сохранить программы в состоянии компонента и отобразить их в пользовательском интерфейсе, позволяя пользователям выбирать программу для тренировк(это далее)
+
   return (
     <>
       <h1>TABATA TIMER</h1>
       <div className="content">
+        <select
+          className="selected-program"
+          value={selectedProgram}
+          onChange={(e) => {
+            setSelectedProgram(e.target.value); //выбранная программа
+
+            if (e.target.value) {
+              const programFromFirebase = programs[e.target.value];
+              setInputTrainingName(programFromFirebase.nameProgram);
+              setInputWorkTime(programFromFirebase.workTime);
+              setInputRestTime(programFromFirebase.rest);
+              setInputCycles(programFromFirebase.cycles);
+              setTimer(programFromFirebase.workTime); // Обновляем значение таймера
+              setRestTimer(programFromFirebase.rest); // Обновляем значение отдыха
+            }
+          }}
+        >
+          <option value="">Выберите сохраненную программу</option>{" "}
+          {/**Первый элемент выпадающего списка, который отображается по умолчанию */}
+          {Object.entries(programs).map((
+            [key, program] // Итерируемся по объекту programs, который содержит программы, полученные из базы данных
+          ) => (
+            <option key={key} value={key}>
+              {" "}
+              {/** сюда не получится value={program} ибо это целый объект */}
+              {(program as { nameProgram: string }).nameProgram}{" "}
+              {/**Отображаем название программы внутри элемента <option> */}
+            </option>
+          ))}
+        </select>
         <input
           type="text"
           className="training-name"
@@ -188,7 +254,6 @@ function App() {
           Тренировка (секунды):
           <input
             type="number"
-            id="workTime"
             value={inputWorkTime}
             onChange={(e) => {
               const value = e.target.value;
@@ -203,7 +268,6 @@ function App() {
           Отдых (секунды):
           <input
             type="number"
-            id="restTime"
             value={inputRestTime}
             onChange={(e) => {
               const value = e.target.value;
@@ -218,7 +282,6 @@ function App() {
           Количество подходов:
           <input
             type="number"
-            id="cycles"
             value={inputCycles}
             onChange={(e) =>
               setInputCycles(e.target.value === "" ? "" : +e.target.value)
@@ -227,12 +290,11 @@ function App() {
         </label>
       </div>
       <div className="buttons">
-        <button type="button" id="start" onClick={startTimer}>
+        <button type="button" onClick={startTimer}>
           Старт
         </button>
         <button
           type="button"
-          id="pauseContinue"
           onClick={
             timerIsStoped || restTimerIsStoped ? continueTimer : stopTimer
           }
@@ -240,11 +302,11 @@ function App() {
           {timerIsStoped || restTimerIsStoped ? "Далее" : "Пауза"}
         </button>
 
-        <button type="button" id="reset" onClick={resetTime}>
+        <button type="button" onClick={resetTime}>
           Сброс
         </button>
       </div>
-      <div id="timer" className="timer">
+      <div className="timer">
         {timerIsWorking
           ? `${Math.floor(timer / 60)
               .toString()
@@ -256,7 +318,7 @@ function App() {
               .padStart(2, "0")} треня`}
       </div>
 
-      <div id="rest-timer" className="rest-timer">
+      <div className="rest-timer">
         {restTimerIsWorking
           ? `${Math.floor(restTimer / 60)
               .toString()
@@ -270,7 +332,7 @@ function App() {
               .padStart(2, "0")} отдых`}
       </div>
 
-      <div id="cycles" className="cycles">
+      <div className="cycles">
         {cycleNumber} / {inputCycles} подходов
       </div>
 
@@ -282,18 +344,11 @@ function App() {
         />
       ) : null}
 
-      <button
-        type="button"
-        id="save-program"
-        className="save-program"
-        onClick={saveProgram}
-      >
+      <button type="button" className="save-program" onClick={saveProgram}>
         Сохранить тренировку
       </button>
 
-      {message? (
-      <h4 className="message">{message}</h4>
-    ) : null}
+      {message ? <h4 className="message">{message}</h4> : null}
     </>
   );
 }
