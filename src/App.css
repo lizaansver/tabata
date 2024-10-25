@@ -1,12 +1,33 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: "Montserrat", sans-serif;
   text-align: center;
   background-color: #bd69ff;
+  color: white;
 }
 
-h1{
-  font-size: 50px;
+h1 {
+  font-size: 48px;
   margin: 30px 0px 20px;
+}
+
+.training-name {
+  padding: 5px 30px 5px 5px;
+  font-size: 23px;
+  border-radius: 10px;
+  border: 1px solid #ffffff;
+  margin-bottom: 10px;
+  color: white;
+}
+
+input[type="text"] {
+  outline: none;
+  font-family: "Montserrat", sans-serif;
+  background-color: #bd69ff;
+  color: white;
 }
 
 .content {
@@ -23,12 +44,15 @@ label {
 }
 
 input[type="number"] {
-  padding: 5px 0px 5px 10px;
-  width: 40px;
+  padding: 5px 0px 5px 5px;
+  width: 57px;
   font-size: 20px;
-  margin-left: 5px;
+  margin-left: 8px;
   border-radius: 10px;
-  border: 1px solid black;
+  border: 1px solid white;
+  background-color: #bd69ff;
+  color: white;
+  outline: none;
 }
 
 .buttons {
@@ -37,24 +61,27 @@ input[type="number"] {
   gap: 30px;
   margin-top: 10px;
 }
-button{
+
+button {
   font-size: 23px;
   cursor: pointer;
-  border: 1px solid black;
+  border: 1px solid white;
   height: 100px;
   width: 100px;
   border-radius: 50%;
-  transition: background-color .1s linear;
+  transition: background-color 0.1s linear;
+  background-color: #bd69ff;
+  color: white;
 }
 
-button:hover{
+button:hover {
   background-color: rgb(211, 182, 238);
 }
 
-button:active{
-  background-color: #c6ff8e;
-}
 
+button:active {
+  background-color: #fffa5f;
+}
 
 .timer,
 .rest-timer {
@@ -63,14 +90,12 @@ button:active{
 }
 
 .timer {
-  color: chocolate;
+  color: #fffa5f;
 }
 
 .rest-timer {
   color: chartreuse;
 }
-
-
 
 .cycles {
   margin-top: 10px;
@@ -80,4 +105,36 @@ button:active{
 audio:not([controls]) {
   opacity: 0;
   pointer-events: none;
+}
+
+.save-program {
+  margin-top: 25px;
+  width: 180px;
+  height: 62px;
+  border-radius: 30px;
+  font-size: 18px;
+}
+
+.message {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #6e5582;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  opacity: 0;
+  animation: slide-up 0.5s forwards;
+}
+
+@keyframes slide-up {
+  0% {
+    bottom: 20px;
+    opacity: 0;
+  }
+  100% {
+    bottom: 40px;
+    opacity: 1;
+  }
 }

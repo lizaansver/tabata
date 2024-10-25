@@ -1,12 +1,17 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./App.css";
-
 import ReactAudioPlayer from "react-audio-player";
+import { ref, push } from "firebase/database";
+import { database } from "./index";
 
 function App() {
   const [inputWorkTime, setInputWorkTime] = useState<number | string>(20);
   const [inputRestTime, setInputRestTime] = useState<number | string>(10);
   const [inputCycles, setInputCycles] = useState<number | string>(8);
+  const [inputTrainingName, setInputTrainingName] = useState<string>(
+    "Название тренировки"
+  );
+  const [message, setMessage] = useState<string | null>("")
 
   const [timer, setTimer] = useState<number>(inputWorkTime as number); //время таймера=время тренировки
   const [timerIsWorking, setTimerIsWorking] = useState<boolean>(false); //false так как таймер изначально не включен
@@ -17,8 +22,7 @@ function App() {
   const [restTimerIsStoped, setRestTimerIsStoped] = useState<boolean>(false);
 
   const [cycleNumber, setCycleNumber] = useState<number>(1); //первоначвльно на 1 цикле мы находимся
-  const [isSoundIsPlaying, setIsSoundIsPlaying] = useState<boolean>(false)
-  
+  const [isSoundIsPlaying, setIsSoundIsPlaying] = useState<boolean>(false);
 
   //useEffect - это хук React, который позволяет выполнять побочные эффекты в функциональных
   //компонентах. В данном случае, useEffect используется для запуска и остановки таймера
@@ -41,8 +45,8 @@ function App() {
       timerIsWorking &&
       timer === 0 &&
       cycleNumber <= (inputCycles as number)
-    ) {   
-      setIsSoundIsPlaying(true) // gudok
+    ) {
+      setIsSoundIsPlaying(true); // gudok
       setTimerIsWorking(false);
       setRestTimerIsWorking(true);
       setRestTimer(inputRestTime as number);
@@ -65,7 +69,7 @@ function App() {
       restTimer === 0 &&
       cycleNumber < (inputCycles as number)
     ) {
-      setIsSoundIsPlaying(true) // gudok
+      setIsSoundIsPlaying(true); // gudok
       setRestTimerIsWorking(false);
       setTimerIsWorking(true);
       setTimer(inputWorkTime as number);
@@ -75,8 +79,24 @@ function App() {
     return () => clearInterval(interval);
   }, [restTimerIsWorking, restTimer, cycleNumber, inputCycles, inputWorkTime]);
 
+  const nameOnFocus = (event: { target: { value: string } }) => {
+    if (event.target.value === "Название тренировки") {
+      setInputTrainingName("");
+    }
+  };
+
+  const nameOnBlur = (event: { target: { value: string } }) => {
+    if (event.target.value === "") {
+      setInputTrainingName("Название тренировки");
+    }
+  };
+
+  const nameOnChange = (event: { target: { value: string } }) => {
+    setInputTrainingName(event.target.value);
+  };
+
   const startTimer = () => {
-    setIsSoundIsPlaying(true) // gudok
+    setIsSoundIsPlaying(true); // gudok
     setTimer(inputWorkTime as number);
     setCycleNumber(1);
     setTimerIsWorking(true);
@@ -114,12 +134,58 @@ function App() {
     setRestTimerIsStoped(false);
   };
 
+  const saveProgram = () => {
+    const program = {
+      nameProgram:inputTrainingName, 
+      workTime: inputWorkTime,
+      rest: inputRestTime,
+      cycles: inputCycles,
+    };
+
+    const programsRef = ref(database, "programs");
+    push(programsRef, program)
+      .then(() => {
+        console.log("программа сохранена");
+        setMessage("Программа сохранена")
+        setTimeout(() => {
+          setMessage(null)
+        }, 3000)
+      })
+      .catch((error) => {
+        console.error("не получилось", error);
+      });
+  };
+
+
+  /**
+   * В строке const programsRef = ref(database, 'programs'); мы создаем ссылку на узел programs
+   * в базе данных Firebase Realtime Database. Узел programs будет содержать все программы,
+   * которые мы сохраняем в базу данных.
+   *
+   * Когда мы сохраняем программу в базу данных, мы используем метод push(),
+   * который добавляет новый узел в указанный узел базы данных и возвращает ссылку на этот узел.
+   * Мы передаем ему ссылку на узел programs и объект program, содержащий данные о программе
+   * тренировки.
+   *
+   * В контексте базы данных, узел (node) - это элемент данных,
+   * который может содержать другие узлы или значения.
+   * Узлы используются для структурирования данных в иерархическую древовидную структуру.
+   */
+
   return (
     <>
       <h1>TABATA TIMER</h1>
       <div className="content">
+        <input
+          type="text"
+          className="training-name"
+          value={inputTrainingName}
+          onFocus={nameOnFocus}
+          onBlur={nameOnBlur}
+          onChange={nameOnChange}
+        />
         <label>
-          Тренировка (секунды) :
+          Тренировка (секунды):
           <input
             type="number"
             id="workTime"
@@ -134,7 +200,7 @@ function App() {
         </label>
 
         <label>
-          Отдых (секунды) :
+          Отдых (секунды):
           <input
             type="number"
             id="restTime"
@@ -149,7 +215,7 @@ function App() {
         </label>
 
         <label>
-          Количество подходов (циклов) :
+          Количество подходов:
           <input
             type="number"
             id="cycles"
@@ -208,7 +274,26 @@ function App() {
         {cycleNumber} / {inputCycles} подходов
       </div>
 
-   {isSoundIsPlaying ? <ReactAudioPlayer src="/svistok.mp3" autoPlay onEnded={() => setIsSoundIsPlaying(false)}  /> : null}
+      {isSoundIsPlaying ? (
+        <ReactAudioPlayer
+          src="/svistok.mp3"
+          autoPlay
+          onEnded={() => setIsSoundIsPlaying(false)}
+        />
+      ) : null}
+
+      <button
+        type="button"
+        id="save-program"
+        className="save-program"
+        onClick={saveProgram}
+      >
+        Сохранить тренировку
+      </button>
+
+      {message? (
+      <h4 className="message">{message}</h4>
+    ) : null}
     </>
   );
 }
