@@ -3,7 +3,8 @@ import "./App.css";
 import ReactAudioPlayer from "react-audio-player";
 import { ref, push, onValue } from "firebase/database";
 import { database } from "./index";
-import { PrimaryExpression } from "typescript";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 function App() {
   const [inputWorkTime, setInputWorkTime] = useState<number | string>(20);
@@ -13,6 +14,15 @@ function App() {
     "Название тренировки"
   );
   const [message, setMessage] = useState<string | null>("");
+  const [selectedDate,setSelectedDate] = useState(new Date())
+  const [startDate, setStartDate] = useState<Date | null>(new Date());
+  const [endDate, setEndDate] = useState<Date | null>(null); //дата не выбрана
+  //Использование типа null | Date вместо undefined | Date позволяет нам указать, 
+  //что состояние endDate может быть не выбрано (null), а не просто не определено (undefined). 
+  //Это может быть полезно, например, если мы хотим отличать случай, когда пользователь еще 
+  //не выбрал конечную дату, от случая, когда пользователь явно указал, что конечная дата не выбрана.
+
+  const [frequency, setFrequency] = useState<number>(1);
 
   const [programs, setPrograms] = useState<Record<string, Program>>({}); // Добавляем состояние programs
   const [selectedProgram, setSelectedProgram] = useState(""); // Добавляем состояние selectedProgram чобы выбирать программу
@@ -27,6 +37,21 @@ function App() {
 
   const [cycleNumber, setCycleNumber] = useState<number>(1); //первоначвльно на 1 цикле мы находимся
   const [isSoundIsPlaying, setIsSoundIsPlaying] = useState<boolean>(false);
+
+  const makeSchedule = (startDate:Date, endDate:Date, frequency:number) => {
+    const schedule = []
+    const currentDate = startDate
+
+    while(currentDate <= endDate){
+      schedule.push(new Date(currentDate)) //это добавление текущей даты (currentDate) в массив schedule. Мы создаем новый объект Date, чтобы избежать изменения исходного объекта currentDate.
+      currentDate.setDate(currentDate.getDate() + frequency) //это увеличение текущей даты (currentDate) на значение frequency. Мы используем метод setDate() объекта Date, чтобы изменить день месяца, и метод getDate(), чтобы получить текущий день месяца.//чтобы изменить день месяца в исходном объекте Date, мы должны использовать метод setDate(), а не присваивание нового значения переменной currentDate!! 
+    }
+
+    return schedule
+    //Эта функция генерирует массив дат, начиная с startDate и заканчивая endDate, с шагом frequency. 
+    //Например, если startDate равно 2022-01-01, endDate равно 2022-01-10 и frequency равно 2, 
+    //то функция вернет массив [2022-01-01, 2022-01-03, 2022-01-05, 2022-01-07, 2022-01-09].
+  }
 
   //useEffect - это хук React, который позволяет выполнять побочные эффекты в функциональных
   //компонентах. В данном случае, useEffect используется для запуска и остановки таймера
@@ -242,6 +267,37 @@ function App() {
             </option>
           ))}
         </select>
+
+        {/**время тренировочки */}
+        <DatePicker
+          selected={startDate}
+          onChange={(date) => setStartDate(date || new Date())}
+          selectsStart
+          startDate={startDate ? startDate : undefined}
+          endDate={endDate ? endDate : undefined} //при передаче значения endDate в свойство endDate компонента DatePicker, мы все равно должны проверять, является ли значение endDate равным null, и если это так, передавать undefined вместо null. Это связано с тем, что свойство endDate компонента DatePicker ожидает значение типа Date | undefined, а не Date | null
+          dateFormat="dd/MM/yyyy"
+        />
+        <DatePicker
+          selected={endDate}
+          onChange={(date) => setEndDate(date)}
+          selectsEnd
+          startDate={startDate ? startDate : undefined}
+          endDate={endDate ? endDate : undefined}
+          dateFormat="dd/MM/yyyy"
+        />
+
+        <select value={frequency} onChange={(e) => setFrequency(+e.target.value)}>
+        <option value={1}>Каждый день</option>
+        <option value={2}>Каждые 2 дня</option>
+        <option value={3}>Каждые 3 дня</option>
+        </select>
+        
+        <ul>
+          {endDate ? makeSchedule(startDate || new Date(), endDate, frequency).map((date) => (
+            <li key={date.toDateString()}>{date.toLocaleDateString()}</li>
+          )) : null}
+        </ul>
+
         <input
           type="text"
           className="training-name"
