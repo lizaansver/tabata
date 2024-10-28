@@ -2,11 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
+
+import { getAuth } from "firebase/auth"; // импортируем функцию getAuth из модуля firebase/auth
 
 // Your web app's Firebase configuration конфигурация
 const firebaseConfig = {
@@ -18,7 +20,6 @@ const firebaseConfig = {
   appId: "1:917284937530:web:a9ce302134564ebb8f3a03",
   measurementId: "G-1Z558LHQRR"
 };
-
 /**
  * Конфигурация Firebase - это набор параметров, 
  * которые используются для настройки подключения вашего приложения к сервисам Firebase. 
@@ -38,6 +39,9 @@ const app = initializeApp(firebaseConfig);
 export const database = getDatabase(app);
 console.log(database)
 
+// Get a reference to the auth service
+export const auth = getAuth(app); // получаем объект auth и экспортируем его
+
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -48,7 +52,3 @@ root.render(
   </React.StrictMode>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
