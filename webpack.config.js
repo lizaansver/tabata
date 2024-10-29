@@ -1,7 +1,20 @@
 const webpack = require('webpack');
 
 module.exports = {
-  //...
+  // другие настройки Webpack
+  module: {
+    rules: [
+      {
+        test: /\.(png|jpe?g|gif)$/i,
+        use: [
+          {
+            loader: 'file-loader',
+          },
+        ],
+      },
+      // другие правила
+    ],
+  },
   plugins: [
     new webpack.ProvidePlugin({
       process: 'process/browser',

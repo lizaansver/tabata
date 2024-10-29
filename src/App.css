@@ -1,5 +1,6 @@
 * {
   box-sizing: border-box;
+  /* outline: 4px solid green !important; */
 }
 
 body {
@@ -9,9 +10,72 @@ body {
   color: white;
 }
 
+/* .modal {
+    width: 100vw;
+    height: 100vh;
+    background: rgb(136 78 159 / 70%);
+    position: fixed;
+    left: 0;
+    top: 0;
+    display: none;
+    z-index: 1;
+}
+
+.modal.active {
+  display: block;
+}
+
+.registration-button,
+.registration-form button {
+  width: 135px;
+  height: 35px;
+  border-radius: 10px;
+  font-size: 18px;
+  margin-top: 20px;
+  background-color: #bd69ff;
+  color: white;
+  font-family: "Montserrat", sans-serif;
+}
+.registration-form button{
+  width: 210px;
+}
+
+.registration-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #fffa5f;
+  max-width: 530px;
+  margin: 50px auto;
+  padding: 20px;
+  position: relative;
+  color: black;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.registration-form input{
+  padding: 5px;
+  font-size: 16px;
+
+}
+
+
+.cross {
+    position: absolute;
+    right: 10px;
+    top: 2px;
+    cursor: pointer;
+    user-select: none;
+    padding: 10px;
+    font-size: 18px;
+} */
+
+
+
 h1 {
   font-size: 48px;
-  margin: 30px 0px 20px;
+  margin: 20px 0px;
 }
 
 h5 {
@@ -22,13 +86,13 @@ h5 {
   padding: 10px;
   font-size: 16px;
   margin-bottom: 40px;
-  background-color: #D3FF5F;
+  background-color: #d3ff5f;
   color: #bd69ff;
   border-radius: 5px;
   border: 1px solid white;
   outline: none;
   cursor: pointer;
-  width: 400px;
+  max-width: 450px;
 }
 
 .training-name {
@@ -148,21 +212,21 @@ audio:not([controls]) {
 
 .selected-period {
   margin-top: 5px;
-    padding: 5px;
-    font-size: 20px;
-    border-radius: 5px;
-    background-color: #bd69ff;
-    color: white;
-    border: 1px dashed white;
+  padding: 5px;
+  font-size: 20px;
+  border-radius: 5px;
+  background-color: #bd69ff;
+  color: white;
+  border: 1px dashed white;
 }
 
-ul{
+ul {
   margin: 10px 0px;
   list-style-type: none;
   outline: none;
 }
 
-ul li{
+ul li {
   transform: translate(-18px, 0px);
   font-size: 20px;
   outline: none;
@@ -174,7 +238,7 @@ ul li{
   border-radius: 10px;
   font-size: 18px;
   margin-bottom: 20px;
-  background-color: #D3FF5F;
+  background-color: #d3ff5f;
   color: #bd69ff;
 }
 
@@ -199,5 +263,30 @@ ul li{
   100% {
     bottom: 40px;
     opacity: 1;
+  }
+}
+
+/* @media (max-width: 600px) {
+  .registration-form {
+    margin: 50px 30px;
+  }
+} */
+
+@media (max-width: 400px) {
+  h1{
+    font-size: 40px;
+  }
+
+  .training-name{
+    font-size: 20px;
+  }
+  
+  label{
+    font-size: 21px;
+  }
+
+  .selected-program{
+    margin: 0px 10px 40px;
+    max-width: 300px;
   }
 }

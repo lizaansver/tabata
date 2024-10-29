@@ -5,10 +5,13 @@ import { ref, push, onValue } from "firebase/database";
 import { database } from "./index";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { register } from './auth'
+import { Registration } from "./Registration/Registration";
+import { Program } from "typescript";
+
 
 function App() {
   const [registrationModal, setRegistrationModal] = useState<boolean>(false);
+
   const [inputWorkTime, setInputWorkTime] = useState<number | string>(20);
   const [inputRestTime, setInputRestTime] = useState<number | string>(10);
   const [inputCycles, setInputCycles] = useState<number | string>(8);
@@ -200,20 +203,23 @@ function App() {
     frequency: number;
   };
 
-  /**
-   * В строке const sendProgramToFirebase = ref(database, 'programs'); мы создаем ссылку на узел programs
-   * в базе данных Firebase Realtime Database. Узел programs будет содержать все программы,
-   * которые мы сохраняем в базу данных.
-   *
-   * Когда мы сохраняем программу в базу данных, мы используем метод push(),
-   * который добавляет новый узел в указанный узел базы данных и возвращает ссылку на этот узел.
-   * Мы передаем ему ссылку на узел programs и объект program, содержащий данные о программе
-   * тренировки.
-   *
-   * В контексте базы данных, узел (node) - это элемент данных,
-   * который может содержать другие узлы или значения.
-   * Узлы используются для структурирования данных в иерархическую древовидную структуру.
-   */
+
+  
+
+  // /**
+  //  * В строке const sendProgramToFirebase = ref(database, 'programs'); мы создаем ссылку на узел programs
+  //  * в базе данных Firebase Realtime Database. Узел programs будет содержать все программы,
+  //  * которые мы сохраняем в базу данных.
+  //  *
+  //  * Когда мы сохраняем программу в базу данных, мы используем метод push(),
+  //  * который добавляет новый узел в указанный узел базы данных и возвращает ссылку на этот узел.
+  //  * Мы передаем ему ссылку на узел programs и объект program, содержащий данные о программе
+  //  * тренировки.
+  //  *
+  //  * В контексте базы данных, узел (node) - это элемент данных,
+  //  * который может содержать другие узлы или значения.
+  //  * Узлы используются для структурирования данных в иерархическую древовидную структуру.
+  //  */
 
   ///получаем программы из firebase
   useEffect(() => {
@@ -238,34 +244,54 @@ function App() {
   //вашего приложения в соответствии с этими данными.
   //Например, вы можете сохранить программы в состоянии компонента и отобразить их в пользовательском интерфейсе, позволяя пользователям выбирать программу для тренировк(это далее)
 
-  const openRegistrationModal = () => {
-    setRegistrationModal(true);
-  };
+  // const openRegistrationModal = () => {
+  //   setRegistrationModal(!registrationModal);
+  // };
 
-  const makeRegistrationOnFirebase = (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
-    event.preventDefault(); //Таким образом, event.preventDefault() используется для предотвращения поведения по умолчанию браузера при отправке формы и позволяет нам обрабатывать данные формы в JavaScript.ЧТОБЫ НЕ ОБНОВЛЯЛАСЬ СТРАНИЦА В НАШЕМ СЛУЧАЕ
-    const email = event.currentTarget.email.value;
-    const password = event.currentTarget.password.value; //Мы можем использовать event.currentTarget вместо event.target, потому что мы знаем, что событие было вызвано на элементе <form>, а не на одном из его дочерних элементов.
-    register(email, password);
-  };
+  // const makeRegistrationOnFirebase = (event: React.FormEvent<HTMLFormElement>) => {
+  //   event.preventDefault(); //Таким образом, event.preventDefault() используется для предотвращения поведения по умолчанию браузера при отправке формы и позволяет нам обрабатывать данные формы в JavaScript.ЧТОБЫ НЕ ОБНОВЛЯЛАСЬ СТРАНИЦА В НАШЕМ СЛУЧАЕ
+  //   const email = event.currentTarget.email.value;
+  //   const password = event.currentTarget.password.value; //Мы можем использовать event.currentTarget вместо event.target, потому что мы знаем, что событие было вызвано на элементе <form>, а не на одном из его дочерних элементов.
+  //   register(email, password);
+  // };
+
   return (
     <>
-      <button onClick={openRegistrationModal}>Регистрация</button>
+      {/* <button className='registration-button' onClick={openRegistrationModal}>Регистрация</button>
       {registrationModal ? (
-        <form onSubmit={makeRegistrationOnFirebase}>
-          <input type="email" name="email" />
-          <input type="password" name="password" />
-          <button type="submit">Register</button>
+        <div className="modal active">
+        <form className="registration-form" onSubmit={makeRegistrationOnFirebase}>
+          <div className="cross" onClick={openRegistrationModal}>Х</div>
+          Почта <input type="email" name="email" />
+          Пароль  <input type="password" name="password" />
+          <button type="submit">Зарегистрироваться</button>
         </form>
-      ) : null}
+        </div>
+      ) : null} */}
+      <Registration registrationModal={registrationModal} setRegistrationModal={setRegistrationModal}></Registration>
+
+      
       <h1>TABATA TIMER</h1>
       <h5>
         Выберите ранее сохраненную тренировку или <br />
         создайте новую вместе с расписанием и сохраните в самом низу
       </h5>
-      <select
+
+     {/* <SelectedProgram 
+     selectedProgram={selectedProgram} 
+     setSelectedProgram={setSelectedProgram} 
+     setInputTrainingName={setInputTrainingName} 
+     setInputWorkTime={setInputWorkTime}
+     setInputRestTime={setInputRestTime}
+     setInputCycles={setInputCycles}
+     setTimer = {setTimer}
+     setRestTimer = {setRestTimer}
+     setStartDate = {setStartDate}
+     setEndDate={setEndDate}
+     setFrequency={setFrequency}
+     programs={programs}
+     ></SelectedProgram> */}
+     <select
         className="selected-program"
         value={selectedProgram}
         onChange={(e) => {
@@ -310,6 +336,7 @@ function App() {
             ))
           : null}
       </select>
+      
       <div className="content">
         <input
           type="text"
@@ -465,5 +492,7 @@ function App() {
     </>
   );
 }
-
+export type {Program};
 export default App;
+
+
