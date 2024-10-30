@@ -21,11 +21,6 @@ function App() {
   const [message, setMessage] = useState<string | null>("");
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [endDate, setEndDate] = useState<Date | null>(null); //дата не выбрана
-  //Использование типа null | Date вместо undefined | Date позволяет нам указать,
-  //что состояние endDate может быть не выбрано (null)!!, а не просто не определено (undefined).
-  //Это может быть полезно, например, если мы хотим отличать случай, когда пользователь еще
-  //не выбрал конечную дату, от случая, когда пользователь явно указал, что конечная дата не выбрана.
-
   const [frequency, setFrequency] = useState<number>(1);
 
   const [programs, setPrograms] = useState<Record<string, Program>>({}); // Добавляем состояние programs
@@ -231,7 +226,7 @@ function App() {
           if (e.target.value) {
             const programFromFirebase = programs[e.target.value];
             setInputTrainingName(programFromFirebase.nameProgram);
-            setDescription(programFromFirebase.description);
+            setDescription(programFromFirebase.description ? programFromFirebase.description : '');
             setInputWorkTime(programFromFirebase.workTime);
             setInputRestTime(programFromFirebase.rest);
             setInputCycles(programFromFirebase.cycles);
@@ -382,7 +377,7 @@ function App() {
 
       {isSoundIsPlaying ? (
         <ReactAudioPlayer
-          src="/svistok.mp3"
+           src={`${process.env.PUBLIC_URL}/svistok.mp3`}
           autoPlay
           onEnded={() => setIsSoundIsPlaying(false)}
         />

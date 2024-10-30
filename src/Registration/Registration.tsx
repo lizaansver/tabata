@@ -89,7 +89,7 @@ export const Registration: React.FC<RegistrationProps> = ({
             Пароль <input type={showPassword? 'text' : 'password'} name="password" className="password"/>
             <img
                     className="eye"
-                    src={showPassword ? '/opened_eye.png' : '/closed_eye.png'}
+                    src={`${process.env.PUBLIC_URL}/${showPassword ? 'opened_eye.png' : 'closed_eye.png'}`}
                     alt={showPassword ? "Показать пароль" : "Скрыть пароль"}
                     onClick={passwordVisibility}
                   />

@@ -50,7 +50,20 @@
   color: #5b02a2;
   border: 2px solid #5b02a2;
   border-radius: 5px;
+  max-width: 207px;
+}
+
+.password{
   position: relative;
+}
+
+
+.eye {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  position: absolute;
+  transform: translate(129px, 80px);
 }
 
 h6{
@@ -70,14 +83,7 @@ h6{
 }
 
 
-.eye {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-    position: absolute;
-    top: 100px;
-    right: 128px;
-  }
+
 
 @media (max-width: 600px) {
     .registration-form {
