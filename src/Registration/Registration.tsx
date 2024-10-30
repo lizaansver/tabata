@@ -23,14 +23,9 @@ export const Registration: React.FC<RegistrationProps> = ({
     try {
       const userObject = await createUserWithEmailAndPassword(auth, email, password); // получаем объект
       const user = userObject.user;
-      console.log("Регистрация прошла успешно", user); // убрать потом
+      console.log("Регистрация прошла успешно", user); 
     } catch (error) {
       console.error("Ошибка регистрации", error);
-      if ((error as any).code === 'auth/email-already-in-use') {
-        setWarning("Аккаунт с такой почтой уже существует");
-      } else {
-        setWarning("Произошла ошибка при регистрации");
-      }
     }
   };
 
@@ -38,14 +33,15 @@ export const Registration: React.FC<RegistrationProps> = ({
     setRegistrationModal(true);
   };
 
-  const changePassword = () => {
-    setShowPassword(!showPassword);
-  };
 
   const closeRegistrationModal = () => {
     setRegistrationModal(false);
     setWarning('');
     setMessage('');
+  };
+
+  const passwordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const makeRegistrationOnFirebase = async (
@@ -59,7 +55,7 @@ export const Registration: React.FC<RegistrationProps> = ({
     const necessaryPassword = /^(?=.*\d)[a-zA-Z]{6}/;
 
     if (!password.match(necessaryPassword)) {
-      setWarning('Должно быть 6 латиниц и одна цифра!');
+      setWarning('Должно быть как минимум 6 латиниц и одна цифра!');
     } else {
       try {
           await register(email, password);
@@ -90,12 +86,12 @@ export const Registration: React.FC<RegistrationProps> = ({
               Х
             </div>
             Почта <input type="email" name="email" />
-            Пароль <input type="password" name="password" />
+            Пароль <input type={showPassword? 'text' : 'password'} name="password" className="password"/>
             <img
                     className="eye"
-                    // src={showPassword ? showPasswordIcon : closePasswordIcon}
+                    src={showPassword ? '/opened_eye.png' : '/closed_eye.png'}
                     alt={showPassword ? "Показать пароль" : "Скрыть пароль"}
-                    onClick={changePassword}
+                    onClick={passwordVisibility}
                   />
             <button type="submit">Зарегистрироваться</button>
             {warning ? (

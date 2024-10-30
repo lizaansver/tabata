@@ -10,68 +10,6 @@ body {
   color: white;
 }
 
-/* .modal {
-    width: 100vw;
-    height: 100vh;
-    background: rgb(136 78 159 / 70%);
-    position: fixed;
-    left: 0;
-    top: 0;
-    display: none;
-    z-index: 1;
-}
-
-.modal.active {
-  display: block;
-}
-
-.registration-button,
-.registration-form button {
-  width: 135px;
-  height: 35px;
-  border-radius: 10px;
-  font-size: 18px;
-  margin-top: 20px;
-  background-color: #bd69ff;
-  color: white;
-  font-family: "Montserrat", sans-serif;
-}
-.registration-form button{
-  width: 210px;
-}
-
-.registration-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: #fffa5f;
-  max-width: 530px;
-  margin: 50px auto;
-  padding: 20px;
-  position: relative;
-  color: black;
-  border-radius: 10px;
-  font-weight: 500;
-}
-
-.registration-form input{
-  padding: 5px;
-  font-size: 16px;
-
-}
-
-
-.cross {
-    position: absolute;
-    right: 10px;
-    top: 2px;
-    cursor: pointer;
-    user-select: none;
-    padding: 10px;
-    font-size: 18px;
-} */
-
-
 
 h1 {
   font-size: 48px;
@@ -97,12 +35,32 @@ h5 {
 
 .training-name {
   padding: 5px 30px 5px 5px;
-  font-size: 23px;
-  border-radius: 10px;
-  border: 1px solid #ffffff;
-  margin-bottom: 10px;
-  color: white;
+    font-size: 18px;
+    border-radius: 10px;
+    border: 1px solid #ffffff;
+    margin-bottom: 10px;
+    color: white;
+    width: 350px;
 }
+
+.trainee-descr h4{
+  margin: 10px 0px 5px;
+  font-size: 17px;
+}
+.description{
+  padding: 5px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 2px dashed #d3ff5f;
+    margin-bottom: 10px;
+    width: 350px;
+    outline: none;
+    background-color: #bd69ff;
+    color:white;
+    font-family: "Montserrat", sans-serif;
+    
+}
+
 
 input[type="text"] {
   outline: none;
@@ -169,6 +127,13 @@ button:active {
   font-size: 40px;
 }
 
+.timer.active{
+  font-size: 70px;
+}
+.rest-timer.active{
+font-size: 70px;
+}
+
 .timer {
   color: #fffa5f;
 }
@@ -232,6 +197,7 @@ ul li {
   outline: none;
 }
 
+
 .save-program {
   width: 210px;
   height: 45px;
@@ -266,11 +232,7 @@ ul li {
   }
 }
 
-/* @media (max-width: 600px) {
-  .registration-form {
-    margin: 50px 30px;
-  }
-} */
+
 
 @media (max-width: 400px) {
   h1{
@@ -278,7 +240,12 @@ ul li {
   }
 
   .training-name{
-    font-size: 20px;
+    max-width: 300px;
+    font-size: 18px;
+  }
+
+  .description{
+    max-width: 300px;
   }
   
   label{
@@ -288,5 +255,23 @@ ul li {
   .selected-program{
     margin: 0px 10px 40px;
     max-width: 300px;
+  }
+
+  .content{
+    margin: 0px 10px;
+  }
+
+  .buttons{
+    margin: 10px 20px 0px;
+    gap: 20px
+  }
+
+  button{
+    height: 95px;
+    width: 95px;
+  }
+
+  input[type="number"] {
+    width: 46px;
   }
 }

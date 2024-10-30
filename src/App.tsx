@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import ReactAudioPlayer from "react-audio-player";
 import { ref, push, onValue } from "firebase/database";
@@ -6,18 +6,18 @@ import { database } from "./index";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Registration } from "./Registration/Registration";
-import { Program } from "typescript";
+
 
 
 function App() {
   const [registrationModal, setRegistrationModal] = useState<boolean>(false);
-
   const [inputWorkTime, setInputWorkTime] = useState<number | string>(20);
   const [inputRestTime, setInputRestTime] = useState<number | string>(10);
   const [inputCycles, setInputCycles] = useState<number | string>(8);
   const [inputTrainingName, setInputTrainingName] = useState<string>(
-    "Название тренировки"
+    "Добавьте название тренировки"
   );
+  const [description, setDescription] = useState<string>('')
   const [message, setMessage] = useState<string | null>("");
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [endDate, setEndDate] = useState<Date | null>(null); //дата не выбрана
@@ -48,26 +48,14 @@ function App() {
 
     while (currentDate <= endDate) {
       schedule.push(new Date(currentDate)); //это добавление текущей даты (currentDate) в массив schedule. Мы создаем новый объект Date, чтобы избежать изменения исходного объекта currentDate.
-      currentDate.setDate(currentDate.getDate() + frequency); //это увеличение текущей даты (currentDate) на значение frequency. Мы используем метод setDate() объекта Date, чтобы изменить день месяца, и метод getDate(), чтобы получить текущий день месяца.//чтобы изменить день месяца в исходном объекте Date, мы должны использовать метод setDate(), а не присваивание нового значения переменной currentDate!!
+      currentDate.setDate(currentDate.getDate() + frequency); 
     }
-
     return schedule;
-    //Эта функция генерирует массив дат, начиная с startDate и заканчивая endDate, с шагом frequency.
-    //Например, если startDate равно 2022-01-01, endDate равно 2022-01-10 и frequency равно 2,
-    //то функция вернет массив [2022-01-01, 2022-01-03, 2022-01-05, 2022-01-07, 2022-01-09].
   };
-
-  //useEffect - это хук React, который позволяет выполнять побочные эффекты в функциональных
-  //компонентах. В данном случае, useEffect используется для запуска и остановки таймера
-  //в зависимости от значений isWorking и timer.
-
-  //Параметры useEffect
-  //Функция эффекта: Это функция, которая будет выполнена после каждого рендера компонента,
-  //если зависимости (второй параметр) изменились.
 
   ///ТРЕНИРОВКА
   useEffect(() => {
-    let interval: NodeJS.Timeout; //Переменная interval объявляется в начале функции эффекта, чтобы она была доступна для очистки.
+    let interval: NodeJS.Timeout; 
 
     if (timerIsWorking && timer > 0) {
       interval = setInterval(() => {
@@ -113,20 +101,25 @@ function App() {
   }, [restTimerIsWorking, restTimer, cycleNumber, inputCycles, inputWorkTime]);
 
   const nameOnFocus = (event: { target: { value: string } }) => {
-    if (event.target.value === "Название тренировки") {
+    if (event.target.value === inputTrainingName) {
       setInputTrainingName("");
     }
   };
 
+
   const nameOnBlur = (event: { target: { value: string } }) => {
     if (event.target.value === "") {
-      setInputTrainingName("Название тренировки");
+      setInputTrainingName(inputTrainingName);
     }
   };
 
   const nameOnChange = (event: { target: { value: string } }) => {
     setInputTrainingName(event.target.value);
   };
+
+  const descriptionOnChange = (event: { target: { value: string } }) => {
+    setDescription(event.target.value)
+  }
 
   const startTimer = () => {
     setIsSoundIsPlaying(true); // gudok
@@ -171,6 +164,7 @@ function App() {
   const saveProgram = () => {
     const program = {
       nameProgram: inputTrainingName,
+      description: description,
       workTime: inputWorkTime,
       rest: inputRestTime,
       cycles: inputCycles,
@@ -195,6 +189,7 @@ function App() {
 
   type Program = {
     nameProgram: string;
+    description:string,
     workTime: number;
     rest: number;
     cycles: number;
@@ -204,23 +199,6 @@ function App() {
   };
 
 
-  
-
-  // /**
-  //  * В строке const sendProgramToFirebase = ref(database, 'programs'); мы создаем ссылку на узел programs
-  //  * в базе данных Firebase Realtime Database. Узел programs будет содержать все программы,
-  //  * которые мы сохраняем в базу данных.
-  //  *
-  //  * Когда мы сохраняем программу в базу данных, мы используем метод push(),
-  //  * который добавляет новый узел в указанный узел базы данных и возвращает ссылку на этот узел.
-  //  * Мы передаем ему ссылку на узел programs и объект program, содержащий данные о программе
-  //  * тренировки.
-  //  *
-  //  * В контексте базы данных, узел (node) - это элемент данных,
-  //  * который может содержать другие узлы или значения.
-  //  * Узлы используются для структурирования данных в иерархическую древовидную структуру.
-  //  */
-
   ///получаем программы из firebase
   useEffect(() => {
     const sendProgramToFirebase = ref(database, "programs");
@@ -229,68 +207,21 @@ function App() {
       setPrograms(programs); // Обновляем состояние компонента с полученными программами
     });
 
-    return () => unsubscribe(); // Отменяем подписку на изменения в узле при размонтировании компонента
+    return () => unsubscribe(); 
   }, []);
 
-  //Когда вы подписываетесь на изменения в узле программ в базе данных с помощью метода onValue,
-  //вы получаете объект snapshot, который содержит текущее значение данных в узле программ.!!
-
-  //Чтобы получить данные из объекта snapshot, вы можете использовать метод val(),
-  //который возвращает значение данных в виде обычного JavaScript-объекта.
-  // В вашем случае, snapshot.val() вернет объект, содержащий все программы,
-  //которые были сохранены в базе данных.
-
-  //Затем вы можете обработать полученные программы и обновить состояние
-  //вашего приложения в соответствии с этими данными.
-  //Например, вы можете сохранить программы в состоянии компонента и отобразить их в пользовательском интерфейсе, позволяя пользователям выбирать программу для тренировк(это далее)
-
-  // const openRegistrationModal = () => {
-  //   setRegistrationModal(!registrationModal);
-  // };
-
-  // const makeRegistrationOnFirebase = (event: React.FormEvent<HTMLFormElement>) => {
-  //   event.preventDefault(); //Таким образом, event.preventDefault() используется для предотвращения поведения по умолчанию браузера при отправке формы и позволяет нам обрабатывать данные формы в JavaScript.ЧТОБЫ НЕ ОБНОВЛЯЛАСЬ СТРАНИЦА В НАШЕМ СЛУЧАЕ
-  //   const email = event.currentTarget.email.value;
-  //   const password = event.currentTarget.password.value; //Мы можем использовать event.currentTarget вместо event.target, потому что мы знаем, что событие было вызвано на элементе <form>, а не на одном из его дочерних элементов.
-  //   register(email, password);
-  // };
 
   return (
     <>
-      {/* <button className='registration-button' onClick={openRegistrationModal}>Регистрация</button>
-      {registrationModal ? (
-        <div className="modal active">
-        <form className="registration-form" onSubmit={makeRegistrationOnFirebase}>
-          <div className="cross" onClick={openRegistrationModal}>Х</div>
-          Почта <input type="email" name="email" />
-          Пароль  <input type="password" name="password" />
-          <button type="submit">Зарегистрироваться</button>
-        </form>
-        </div>
-      ) : null} */}
       <Registration registrationModal={registrationModal} setRegistrationModal={setRegistrationModal}></Registration>
 
-      
       <h1>TABATA TIMER</h1>
       <h5>
         Выберите ранее сохраненную тренировку или <br />
         создайте новую вместе с расписанием и сохраните в самом низу
       </h5>
 
-     {/* <SelectedProgram 
-     selectedProgram={selectedProgram} 
-     setSelectedProgram={setSelectedProgram} 
-     setInputTrainingName={setInputTrainingName} 
-     setInputWorkTime={setInputWorkTime}
-     setInputRestTime={setInputRestTime}
-     setInputCycles={setInputCycles}
-     setTimer = {setTimer}
-     setRestTimer = {setRestTimer}
-     setStartDate = {setStartDate}
-     setEndDate={setEndDate}
-     setFrequency={setFrequency}
-     programs={programs}
-     ></SelectedProgram> */}
+    
      <select
         className="selected-program"
         value={selectedProgram}
@@ -300,6 +231,7 @@ function App() {
           if (e.target.value) {
             const programFromFirebase = programs[e.target.value];
             setInputTrainingName(programFromFirebase.nameProgram);
+            setDescription(programFromFirebase.description);
             setInputWorkTime(programFromFirebase.workTime);
             setInputRestTime(programFromFirebase.rest);
             setInputCycles(programFromFirebase.cycles);
@@ -309,7 +241,7 @@ function App() {
               programFromFirebase.startDate
                 ? new Date(programFromFirebase.startDate)
                 : null
-            ); //Когда вы получаете программы из базы данных, вы можете преобразовать строки startDate и endDate обратно в объекты Date с помощью конструктора Date.
+            ); //строки дато обратно в дейт
             setEndDate(
               programFromFirebase.endDate
                 ? new Date(programFromFirebase.endDate)
@@ -346,6 +278,22 @@ function App() {
           onBlur={nameOnBlur}
           onChange={nameOnChange}
         />
+
+        <div className="trainee-descr">
+         <h4>Описание тренировки</h4> 
+        <textarea  
+        className="description"
+        value={description}
+        onChange={descriptionOnChange}
+        onInput={ (e) => {
+          const target = e.target as HTMLTextAreaElement
+          target.style.height = 'auto'
+          target.style.height = `${target.scrollHeight}px`;
+        }}
+        spellCheck = "false"
+         />
+        </div>
+
         <label>
           Тренировка (секунды):
           <input
@@ -402,7 +350,7 @@ function App() {
           Сброс
         </button>
       </div>
-      <div className="timer">
+      <div className={`timer ${timerIsWorking || timerIsStoped? 'active' : ''}`}>
         {timerIsWorking
           ? `${Math.floor(timer / 60)
               .toString()
@@ -411,10 +359,10 @@ function App() {
               .toString()
               .padStart(2, "0")} : ${(timer % 60)
               .toString()
-              .padStart(2, "0")} треня`}
+              .padStart(2, "0")}`}
       </div>
 
-      <div className="rest-timer">
+      <div className={`rest-timer ${restTimerIsWorking || restTimerIsStoped ? 'active' : ''}`}>
         {restTimerIsWorking
           ? `${Math.floor(restTimer / 60)
               .toString()
@@ -492,7 +440,7 @@ function App() {
     </>
   );
 }
-export type {Program};
+
 export default App;
 
 
