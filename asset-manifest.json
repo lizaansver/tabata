@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/tabata/static/css/main.695a33d7.css",
+    "main.css": "/tabata/static/css/main.0876712a.css",
     "main.js": "/tabata/static/js/main.0b55da71.js",
     "index.html": "/tabata/index.html",
-    "main.695a33d7.css.map": "/tabata/static/css/main.695a33d7.css.map",
+    "main.0876712a.css.map": "/tabata/static/css/main.0876712a.css.map",
     "main.0b55da71.js.map": "/tabata/static/js/main.0b55da71.js.map"
   },
   "entrypoints": [
-    "static/css/main.695a33d7.css",
+    "static/css/main.0876712a.css",
     "static/js/main.0b55da71.js"
   ]
 }
