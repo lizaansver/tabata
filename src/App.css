@@ -82,9 +82,11 @@ label {
   line-height: 40px;
 }
 
-input[type="number"] {
+.input-work,
+.input-rest,
+.input-cycle{
   padding: 5px 0px 5px 5px;
-  width: 57px;
+  width: 48px;
   font-size: 20px;
   margin-left: 8px;
   border-radius: 10px;
@@ -119,6 +121,10 @@ button:hover {
 
 button:active {
   background-color: #fffa5f;
+}
+
+.button-start:disabled{
+  background-color: rgb(197, 197, 197);
 }
 
 .timer,
@@ -192,11 +198,21 @@ ul {
 }
 
 ul li {
-  transform: translate(-18px, 0px);
+  transform: translate(-17px, 0px);
   font-size: 20px;
   outline: none;
 }
 
+.show-more {
+  width: 169px;
+    height: 32px;
+    border-radius: 10px;
+    font-size: 17px;
+    margin-top: 10px;
+    color: #fff;
+    transform: translate(-16px, 0px);
+
+}
 
 .save-program {
   width: 210px;
