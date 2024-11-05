@@ -10,16 +10,27 @@ import { getDatabase } from "firebase/database";
 
 import { getAuth } from "firebase/auth"; // импортируем функцию getAuth из модуля firebase/auth
 
-// Your web app's Firebase configuration конфигурация
+// Создаем объект конфигурации Firebase, используя переменные окружения
 const firebaseConfig = {
-  apiKey: "AIzaSyCFTEiWXdI50_No7UwYKK7aK2XXUM__TZ0",
-  authDomain: "tabata-timer-lizaansver.firebaseapp.com",
-  projectId: "tabata-timer-lizaansver",
-  storageBucket: "tabata-timer-lizaansver.appspot.com",
-  messagingSenderId: "917284937530",
-  appId: "1:917284937530:web:a9ce302134564ebb8f3a03",
-  measurementId: "G-1Z558LHQRR"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+  databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
 };
+
+console.log('Firebase Config:', firebaseConfig);
+
+//Префикс REACT_APP_: Все переменные окружения, которые вы хотите использовать в вашем 
+//React-приложении, должны начинаться с префикса REACT_APP_. Это требование Create React App.
+
+//Безопасность: Не храните конфиденциальные данные, такие как пароли 
+//или секретные ключи, в .env файле, так как они будут доступны в сборке и могут быть 
+//уязвимы для утечек.
+
 /**
  * Конфигурация Firebase - это набор параметров, 
  * которые используются для настройки подключения вашего приложения к сервисам Firebase. 
@@ -32,12 +43,13 @@ const firebaseConfig = {
  * Firebase в вашем приложении и для подключения к сервисам Firebase.
  */
 
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
 // Get a reference to the database service
 export const database = getDatabase(app);
-console.log(database)
+
 
 // Get a reference to the auth service
 export const auth = getAuth(app); // получаем объект auth и экспортируем его

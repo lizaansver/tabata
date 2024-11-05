@@ -6,14 +6,14 @@ import { database } from "./index";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Registration } from "./Registration/Registration";
-import { newDate } from "react-datepicker/dist/date_utils";
+
 
 function App() {
-  const [registrationModal, setRegistrationModal] = useState<boolean>(false);
+  const [showModal, setshowModal] = useState<boolean>(false);
 
-  const [inputWorkTime, setInputWorkTime] = useState<number | string>(20);
-  const [inputRestTime, setInputRestTime] = useState<number | string>(10);
-  const [inputCycles, setInputCycles] = useState<number | string>(8);
+  const [inputWorkTime, setInputWorkTime] = useState<number | undefined>(20);
+  const [inputRestTime, setInputRestTime] = useState<number | undefined>(10);
+  const [inputCycles, setInputCycles] = useState<number | undefined>(8);
   const [inputTrainingName, setInputTrainingName] = useState<string>(
     "Добавьте название тренировки"
   );
@@ -55,53 +55,6 @@ function App() {
     }
     return schedule;
   };
-
-  ///ТРЕНИРОВКА
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-
-    if (timerIsWorking && timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prevTime) => prevTime - 1);
-      }, 1000);
-      setRestTimer(inputRestTime as number);
-    } else if (
-      timerIsWorking &&
-      timer === 0 &&
-      cycleNumber <= (inputCycles as number)
-    ) {
-      setIsSoundIsPlaying(true); // gudok
-      setTimerIsWorking(false);
-      setRestTimerIsWorking(true);
-      setRestTimer(inputRestTime as number);
-    }
-
-    return () => clearInterval(interval);
-  }, [timerIsWorking, timer, cycleNumber, inputCycles, inputRestTime]);
-
-  ///ОТДЫХ
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-
-    if (restTimerIsWorking && restTimer > 0) {
-      interval = setInterval(() => {
-        setRestTimer((prevTime) => prevTime - 1);
-      }, 1000);
-      setTimer(inputWorkTime as number);
-    } else if (
-      restTimerIsWorking &&
-      restTimer === 0 &&
-      cycleNumber < (inputCycles as number)
-    ) {
-      setIsSoundIsPlaying(true); // gudok
-      setRestTimerIsWorking(false);
-      setTimerIsWorking(true);
-      setTimer(inputWorkTime as number);
-      setCycleNumber((prevCycle) => prevCycle + 1);
-    }
-
-    return () => clearInterval(interval);
-  }, [restTimerIsWorking, restTimer, cycleNumber, inputCycles, inputWorkTime]);
 
   const nameOnFocus = (event: { target: { value: string } }) => {
     if (event.target.value === "Добавьте название тренировки") {
@@ -164,14 +117,25 @@ function App() {
     setStartButtonDisabled(false);
   };
 
+  type Program = {
+    nameProgram: string;
+    description: string;
+    workTime: number;
+    rest: number;
+    cycles: number;
+    startDate: string | null;
+    endDate: string | null;
+    frequency: number;
+  };
+
   ///сохраняем программу в firebase
   const saveProgram = () => {
-    const program = {
+    const program: Program = {
       nameProgram: inputTrainingName,
       description: description,
-      workTime: inputWorkTime,
-      rest: inputRestTime,
-      cycles: inputCycles,
+      workTime: inputWorkTime as number,
+      rest: inputRestTime as number,
+      cycles: inputCycles as number,
       startDate: startDate ? startDate.toISOString() : null, //метод toISOString() для преобразования объектов Date в строки, которые могут быть сохранены в Firebase.
       endDate: endDate ? endDate.toISOString() : null,
       frequency: frequency,
@@ -190,16 +154,82 @@ function App() {
       });
   };
 
-  type Program = {
-    nameProgram: string;
-    description: string;
-    workTime: number;
-    rest: number;
-    cycles: number;
-    startDate: string | null;
-    endDate: string | null;
-    frequency: number;
+  const chooseSavedProgramFromFB = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setSelectedProgram(e.target.value); //выбранная программа
+
+    if (!e.target.value) {
+      return;
+    }
+
+    const programFromFirebase = programs[e.target.value];
+    setInputTrainingName(programFromFirebase.nameProgram);
+    setDescription(
+      programFromFirebase.description ? programFromFirebase.description : ""
+    );
+    setInputWorkTime(programFromFirebase.workTime);
+    setInputRestTime(programFromFirebase.rest);
+    setInputCycles(programFromFirebase.cycles);
+    setTimer(programFromFirebase.workTime); // Обновляем значение таймера
+    setRestTimer(programFromFirebase.rest); // Обновляем значение отдыха
+    setStartDate(
+      programFromFirebase.startDate
+        ? new Date(programFromFirebase.startDate)
+        : null
+    ); //строки дато обратно в дейт
+    setEndDate(
+      programFromFirebase.endDate ? new Date(programFromFirebase.endDate) : null
+    );
+    setFrequency(programFromFirebase.frequency);
   };
+
+  ///ТРЕНИРОВКА
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (timerIsWorking && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prevTime) => prevTime - 1);
+      }, 1000);
+      setRestTimer(inputRestTime as number);
+    } else if (
+      timerIsWorking &&
+      timer === 0 &&
+      cycleNumber <= (inputCycles as number)
+    ) {
+      setIsSoundIsPlaying(true); // gudok
+      setTimerIsWorking(false);
+      setRestTimerIsWorking(true);
+      setRestTimer(inputRestTime as number);
+    }
+
+    return () => clearInterval(interval);
+  }, [timerIsWorking, timer, cycleNumber, inputCycles, inputRestTime]);
+
+  ///ОТДЫХ
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (restTimerIsWorking && restTimer > 0) {
+      interval = setInterval(() => {
+        setRestTimer((prevTime) => prevTime - 1);
+      }, 1000);
+      setTimer(inputWorkTime as number);
+    } else if (
+      restTimerIsWorking &&
+      restTimer === 0 &&
+      cycleNumber < (inputCycles as number)
+    ) {
+      setIsSoundIsPlaying(true); // gudok
+      setRestTimerIsWorking(false);
+      setTimerIsWorking(true);
+      setTimer(inputWorkTime as number);
+      setCycleNumber((prevCycle) => prevCycle + 1);
+    }
+
+    return () => clearInterval(interval);
+  }, [restTimerIsWorking, restTimer, cycleNumber, inputCycles, inputWorkTime]);
 
   ///получаем программы из firebase
   useEffect(() => {
@@ -214,10 +244,7 @@ function App() {
 
   return (
     <>
-      <Registration
-        registrationModal={registrationModal}
-        setRegistrationModal={setRegistrationModal}
-      ></Registration>
+      <Registration showModal={showModal} setshowModal={setshowModal} />
 
       <h1>TABATA TIMER</h1>
       <h5>
@@ -228,35 +255,7 @@ function App() {
       <select
         className="selected-program"
         value={selectedProgram}
-        onChange={(e) => {
-          setSelectedProgram(e.target.value); //выбранная программа
-
-          if (e.target.value) {
-            const programFromFirebase = programs[e.target.value];
-            setInputTrainingName(programFromFirebase.nameProgram);
-            setDescription(
-              programFromFirebase.description
-                ? programFromFirebase.description
-                : ""
-            );
-            setInputWorkTime(programFromFirebase.workTime);
-            setInputRestTime(programFromFirebase.rest);
-            setInputCycles(programFromFirebase.cycles);
-            setTimer(programFromFirebase.workTime); // Обновляем значение таймера
-            setRestTimer(programFromFirebase.rest); // Обновляем значение отдыха
-            setStartDate(
-              programFromFirebase.startDate
-                ? new Date(programFromFirebase.startDate)
-                : null
-            ); //строки дато обратно в дейт
-            setEndDate(
-              programFromFirebase.endDate
-                ? new Date(programFromFirebase.endDate)
-                : null
-            );
-            setFrequency(programFromFirebase.frequency);
-          }
-        }}
+        onChange={chooseSavedProgramFromFB}
       >
         <option value="" disabled>
           Выберите ранее сохраненную тренировку
@@ -269,13 +268,13 @@ function App() {
               <option key={key} value={key}>
                 {" "}
                 {/** сюда не получится value={program} ибо это целый объект */}
-                {(program as { nameProgram: string }).nameProgram}{" "}
+                {program.nameProgram}{" "}
                 {/**Отображаем название программы внутри элемента <option> */}
               </option>
             ))
           : null}
       </select>
-
+ 
       <div className="content">
         <input
           type="text"
@@ -308,8 +307,8 @@ function App() {
             value={inputWorkTime}
             onChange={(e) => {
               const value = e.target.value;
-              setInputWorkTime(value === "" ? "" : +value);
-              setTimer(value === "" ? 0 : +value);
+              setInputWorkTime(+value || undefined);
+              setTimer(+value || 0);
               setTimerIsWorking(false);
             }}
           />
@@ -322,8 +321,8 @@ function App() {
             value={inputRestTime}
             onChange={(e) => {
               const value = e.target.value;
-              setInputRestTime(value === "" ? "" : +value);
-              setRestTimer(value === "" ? 0 : +value);
+              setInputRestTime(+value || undefined);
+              setRestTimer(+value || 0);
               setRestTimerIsWorking(false);
             }}
           />
@@ -334,9 +333,10 @@ function App() {
           <input
             className="input-cycle"
             value={inputCycles}
-            onChange={(e) =>
-              setInputCycles(e.target.value === "" ? "" : +e.target.value)
-            }
+            onChange={(e) => {
+              const value = e.target.value;
+              setInputCycles(+value || undefined);
+            }}
           />
         </label>
       </div>
@@ -422,7 +422,13 @@ function App() {
           startDate={startDate ? startDate : undefined}
           endDate={endDate ? endDate : undefined}
           minDate={startDate || new Date()} // Ограничиваем выбор даты
-          maxDate={new Date(new Date(startDate || new Date()).setMonth((startDate || new Date()).getMonth() + 6))} // Ограничиваем выбор даты на 6 месяцев вперед
+          maxDate={
+            new Date(
+              new Date(startDate || new Date()).setMonth(
+                (startDate || new Date()).getMonth() + 6
+              )
+            )
+          } // Ограничиваем выбор даты на 6 месяцев вперед
           dateFormat="dd/MM/yyyy"
         />
         <select
