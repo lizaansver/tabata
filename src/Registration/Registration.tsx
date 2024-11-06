@@ -71,9 +71,14 @@ export const Registration: React.FC<RegistrationProps> = ({
 
   return (
     <>
-      <button className="registration-button" onClick={openshowModal}>
+    <div className="registration-buttons">
+     <button className="registration-button" onClick={openshowModal}>
         Регистрация
       </button>
+      <button className="sign-in-button">
+        Вход
+      </button> 
+    </div>
       {showModal ? (
         <div className="modal active">
           <form
