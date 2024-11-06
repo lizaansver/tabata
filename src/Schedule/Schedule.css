@@ -1,0 +1,55 @@
+.schedule {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .schedule h3 {
+    margin: 20px 0px 5px 0px;
+    font-weight: 700;
+    font-size: 25px;
+  }
+  
+  .schedule input[type="text"] {
+    outline: none;
+    font-family: "Montserrat", sans-serif;
+    background-color: #bd69ff;
+    color: white;
+    padding: 3px;
+    font-size: 20px;
+    border-radius: 5px;
+    border: 1px solid white;
+  }
+
+  .selected-period {
+    margin-top: 5px;
+    padding: 5px;
+    font-size: 20px;
+    border-radius: 5px;
+    background-color: #bd69ff;
+    color: white;
+    border: 1px dashed white;
+  }
+
+  ul {
+    margin: 10px 0px;
+    list-style-type: none;
+    outline: none;
+  }
+  
+  ul li {
+    transform: translate(-17px, 0px);
+    font-size: 20px;
+    outline: none;
+  }
+  
+  .show-more {
+    width: 169px;
+      height: 32px;
+      border-radius: 10px;
+      font-size: 17px;
+      margin-top: 10px;
+      color: #fff;
+      transform: translate(-16px, 0px);
+  
+  }
