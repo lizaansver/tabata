@@ -58,7 +58,7 @@
   color: #5b02a2;
   border: 2px solid #5b02a2;
   border-radius: 5px;
-  max-width: 207px;
+  width: 207px;
 }
 
 .password {
@@ -70,7 +70,7 @@
   height: 20px;
   cursor: pointer;
   position: absolute;
-  transform: translate(129px, 80px);
+  transform: translate(127px, 80px);
 }
 
 h6 {
