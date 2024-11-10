@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ref, push, onValue } from "firebase/database";
-import { database } from "./index";
+import { database } from "../index";
 
 export type Program = {
     nameProgram: string;

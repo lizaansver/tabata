@@ -1,12 +1,18 @@
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./Schedule.css";
 
-export const Schedule = () => {
-  const [startDate, setStartDate] = useState<Date | null>(new Date());
-  const [endDate, setEndDate] = useState<Date | null>(null); //дата не выбрана
-  const [frequency, setFrequency] = useState<number>(1);
+interface ScheduleProps {
+  setStartDate: Dispatch<SetStateAction<Date | null>>;
+  setEndDate: Dispatch<SetStateAction<Date | null>>;
+  setFrequency: Dispatch<SetStateAction<number>>;
+  startDate: Date | null;
+  endDate: Date | null;
+  frequency: number;
+}
+
+export const Schedule: React.FC<ScheduleProps> = ({ setStartDate, setEndDate, setFrequency, startDate, endDate, frequency}) => {
 
   const [visibleDates, setVisibleDates] = useState<number>(6); // минимум 6 дат в расписании показывает
 
@@ -21,13 +27,13 @@ export const Schedule = () => {
     }
 
     // Добавляем endDate в массив расписания
-    if (
-      !schedule.some((date) => date.toDateString() === endDate.toDateString())
-    ) {
+    if (!schedule.some((date) => date.toDateString() === endDate.toDateString())) {
       schedule.push(new Date(endDate));
     }
     return schedule;
   };
+
+ 
 
   return (
     <div className="schedule">
@@ -35,7 +41,10 @@ export const Schedule = () => {
       Начало{" "}
       <DatePicker
         selected={startDate}
-        onChange={(date) => setStartDate(date || new Date())}
+        // onChange={(date) => setStartDate(date || new Date())}
+        onChange={(date) => {
+          setStartDate(date || new Date());
+        }}
         startDate={startDate ? startDate : undefined}
         minDate={new Date()}
         endDate={endDate ? endDate : undefined} //при передаче значения endDate в свойство endDate компонента DatePicker, мы все равно должны проверять, является ли значение endDate равным null, и если это так, передавать undefined вместо null. Это связано с тем, что свойство endDate компонента DatePicker ожидает значение типа Date | undefined, а не Date | null
@@ -44,7 +53,9 @@ export const Schedule = () => {
       Конец{" "}
       <DatePicker
         selected={endDate}
-        onChange={(date) => setEndDate(date)}
+        onChange={(date) => {
+          setEndDate(date);
+        }}
         startDate={startDate ? startDate : undefined}
         endDate={endDate ? endDate : undefined}
         minDate={startDate || new Date()} // Ограничиваем выбор даты
@@ -60,7 +71,9 @@ export const Schedule = () => {
       <select
         className="selected-period"
         value={frequency}
-        onChange={(e) => setFrequency(+e.target.value)}
+        onChange={(e) => {
+          setFrequency(+e.target.value);
+        }}
       >
         <option value={1}>Каждый день</option>
         <option value={2}>Каждые 2 дня</option>

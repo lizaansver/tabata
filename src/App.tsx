@@ -1,9 +1,9 @@
-import React, { useState} from "react";
+import React, { useState } from "react";
 import "./App.css";
 import ReactAudioPlayer from "react-audio-player";
 import { Registration } from "./Registration/Registration";
-import useTimer from "./useTimer";
-import useWorkWithFireBase,  { Program } from "./useWorkWithFireBase"
+import useTimer from "./Hooks/useTimer";
+import useWorkWithFireBase, { Program } from "./Hooks/useWorkWithFireBase";
 import { Schedule } from "./Schedule/Schedule";
 
 function App() {
@@ -13,7 +13,9 @@ function App() {
   const [inputRestTime, setInputRestTime] = useState<number | undefined>(10);
   const [inputCycles, setInputCycles] = useState<number | undefined>(8);
 
-  const [inputTrainingName, setInputTrainingName] = useState<string>("Добавьте название тренировки");
+  const [inputTrainingName, setInputTrainingName] = useState<string>(
+    "Добавьте название тренировки"
+  );
 
   const [description, setDescription] = useState<string>("");
 
@@ -23,7 +25,9 @@ function App() {
 
   const [selectedProgram, setSelectedProgram] = useState(""); // Добавляем состояние selectedProgram чобы выбирать программу
 
-  const [startButtonDisabled, setStartButtonDisabled] = useState<boolean>(false);
+  const [startButtonDisabled, setStartButtonDisabled] = useState<boolean>(
+    false
+  );
 
   const [isSoundIsPlaying, setIsSoundIsPlaying] = useState<boolean>(false);
 
@@ -42,10 +46,16 @@ function App() {
     setRestTimer,
     setTimer,
     setTimerIsWorking,
-    setRestTimerIsWorking
-  } = useTimer(inputWorkTime ?? 20, inputRestTime ?? 10, inputCycles ?? 8, setIsSoundIsPlaying, setStartButtonDisabled)
+    setRestTimerIsWorking,
+  } = useTimer(
+    inputWorkTime ?? 20,
+    inputRestTime ?? 10,
+    inputCycles ?? 8,
+    setIsSoundIsPlaying,
+    setStartButtonDisabled
+  );
 
-  const {programs, saveProgram, message, setMessage} = useWorkWithFireBase()
+  const { programs, saveProgram, message, setMessage } = useWorkWithFireBase();
 
   const nameOnFocus = (event: { target: { value: string } }) => {
     if (event.target.value === "Добавьте название тренировки") {
@@ -81,19 +91,20 @@ function App() {
     saveProgram(program);
   };
   // функция finallySaveProgram создает объект program и передает его в функцию saveProgram при нажатии на кнопку
-  //Функция finallySaveProgram находится в компоненте App, 
-  //потому что она зависит от множества состояний, которые находятся в этом компоненте. 
+  //Функция finallySaveProgram находится в компоненте App,
+  //потому что она зависит от множества состояний, которые находятся в этом компоненте.
   //Если бы мы вынесли эту функцию в отдельный хук, нам пришлось бы передавать все эти состояния в хук, что могло бы сделать код более сложным и менее читаемым.
-  
 
-  const chooseSavedProgramFromFB = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const chooseSavedProgramFromFB = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     setSelectedProgram(e.target.value); //выбранная программа
 
     if (!e.target.value) {
       return;
     }
 
-    const programFromFirebase = programs[e.target.value]; 
+    const programFromFirebase = programs[e.target.value];
     setInputTrainingName(programFromFirebase.nameProgram);
     setDescription(
       programFromFirebase.description ? programFromFirebase.description : ""
@@ -103,10 +114,27 @@ function App() {
     setInputCycles(programFromFirebase.cycles);
     setTimer(programFromFirebase.workTime); // Обновляем значение таймера
     setRestTimer(programFromFirebase.rest); // Обновляем значение отдыха
-    setStartDate(programFromFirebase.startDate ? new Date(programFromFirebase.startDate) : null); //строки дато обратно в дейт
-    setEndDate(programFromFirebase.endDate ? new Date(programFromFirebase.endDate) : null);
+    setStartDate(
+      programFromFirebase.startDate
+        ? new Date(programFromFirebase.startDate)
+        : null
+    ); //строки дато обратно в дейт
+    setEndDate(
+      programFromFirebase.endDate ? new Date(programFromFirebase.endDate) : null
+    );
     setFrequency(programFromFirebase.frequency);
   };
+
+  const timeFormat = (time:number) => {
+    const minutes = Math.floor(time / 60).toString().padStart(2, "0")
+    const seconds = (time % 60).toString().padStart(2, "0")
+
+    return `${minutes} : ${seconds}`
+  }
+
+  const timerDisplay = timeFormat(timer)
+  const restTimerDisplay = timeFormat(restTimer)
+  
 
   return (
     <>
@@ -140,7 +168,7 @@ function App() {
             ))
           : null}
       </select>
- 
+
       <div className="content">
         <input
           type="text"
@@ -231,13 +259,7 @@ function App() {
       <div
         className={`timer ${timerIsWorking || timerIsStoped ? "active" : ""}`}
       >
-        {timerIsWorking
-          ? `${Math.floor(timer / 60)
-              .toString()
-              .padStart(2, "0")} : ${(timer % 60).toString().padStart(2, "0")}`
-          : `${Math.floor(timer / 60)
-              .toString()
-              .padStart(2, "0")} : ${(timer % 60).toString().padStart(2, "0")}`}
+        {timerIsWorking ? timerDisplay : timerDisplay}
       </div>
 
       <div
@@ -245,17 +267,7 @@ function App() {
           restTimerIsWorking || restTimerIsStoped ? "active" : ""
         }`}
       >
-        {restTimerIsWorking
-          ? `${Math.floor(restTimer / 60)
-              .toString()
-              .padStart(2, "0")} : ${(restTimer % 60)
-              .toString()
-              .padStart(2, "0")}`
-          : `${Math.floor(restTimer / 60)
-              .toString()
-              .padStart(2, "0")} : ${(restTimer % 60)
-              .toString()
-              .padStart(2, "0")}`}
+        {restTimerIsWorking ? restTimerDisplay : restTimerDisplay}
       </div>
 
       <div className="cycles">
@@ -270,9 +282,20 @@ function App() {
         />
       ) : null}
 
-      <Schedule />
+      <Schedule
+        setStartDate={setStartDate}
+        setEndDate={setEndDate}
+        setFrequency={setFrequency}
+        startDate={startDate}
+        endDate={endDate}
+        frequency={frequency}
+      />
 
-      <button type="button" className="save-program" onClick={finallySaveProgram}>
+      <button
+        type="button"
+        className="save-program"
+        onClick={finallySaveProgram}
+      >
         Сохранить&nbsp;тренировку
       </button>
 
